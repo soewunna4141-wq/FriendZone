@@ -1,5 +1,5 @@
 package com.fz.friendzone
-
+import com.fz.friendzone.core.navigation.FriendZoneNavHost
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
