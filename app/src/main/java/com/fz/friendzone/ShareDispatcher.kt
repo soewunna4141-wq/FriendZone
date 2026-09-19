@@ -48,7 +48,7 @@ object ShareDispatcher {
         if (platform == Platform.TIKTOK && content.mediaUri == null) {
             Toast.makeText(
                 context,
-                "TikTok requires a photo or video — add media before sharing to TikTok.",
+                context.getString(R.string.tiktok_requires_media),
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -71,11 +71,20 @@ object ShareDispatcher {
         // Fallback: generic chooser (also used when the app isn't installed,
         // so the user can pick whatever's available, e.g. Telegram web).
         val chooserTitle = if (isInstalled) {
-            "Share to ${platform.label}"
+            context.getString(
+                R.string.share_to_platform,
+                platform.label
+            )
         } else {
-            "${platform.label} not found — choose an app"
+            context.getString(
+                R.string.platform_not_found,
+                platform.label
+            )
         }
-        context.startActivity(Intent.createChooser(intent, chooserTitle))
+
+        context.startActivity(
+            Intent.createChooser(intent, chooserTitle)
+        )
     }
 
     /**
@@ -83,7 +92,11 @@ object ShareDispatcher {
      * after another. Each opens as its own share sheet / target app; the
      * user confirms each post individually.
      */
-    fun shareToAll(context: Context, platforms: List<Platform>, content: PostContent) {
+    fun shareToAll(
+        context: Context,
+        platforms: List<Platform>,
+        content: PostContent
+    ) {
         platforms.forEach { platform ->
             share(context, platform, content)
         }
@@ -107,7 +120,10 @@ object ShareDispatcher {
         }
     }
 
-    private fun isPackageInstalled(context: Context, packageName: String): Boolean {
+    private fun isPackageInstalled(
+        context: Context,
+        packageName: String
+    ): Boolean {
         return try {
             context.packageManager.getPackageInfo(packageName, 0)
             true
