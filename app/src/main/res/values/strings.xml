@@ -3,16 +3,16 @@
 
     <!-- Composer -->
     <string name="composer_title">FriendZone</string>
-    <string name="composer_hint">What&#39;s on your mind?</string>
+    <string name="composer_hint">What is on your mind?</string>
     <string name="add_media">Add photo / video</string>
     <string name="change_media">Change media</string>
-    <string name="media_attached">Media attached ✓</string>
+    <string name="media_attached">Media attached</string>
     <string name="post_to">Post to:</string>
     <string name="post">Post</string>
-    <string name="share_info">Tapping Post opens each platform&#39;s own share screen so you make the final tap on every app yourself.</string>
+    <string name="share_info">Tapping Post opens each platform share screen so you make the final tap on every app yourself.</string>
 
     <!-- Share -->
     <string name="share_to_platform">Share to %1$s</string>
-    <string name="platform_not_found"> %1$s not found — choose an app</string>
-    <string name="tiktok_requires_media">TikTok requires a photo or video — add media before sharing to TikTok.</string>
+    <string name="platform_not_found">%1$s not found - choose an app</string>
+    <string name="tiktok_requires_media">TikTok requires a photo or video - add media before sharing to TikTok.</string>
 </resources>
