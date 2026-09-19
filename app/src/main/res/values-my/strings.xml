@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">FriendZone</string>
+
+    <!-- Composer -->
+    <string name="composer_title">FriendZone</string>
+    <string name="composer_hint">စိတ်ထဲမှာ ဘာရှိလဲ?</string>
+    <string name="add_media">ဓာတ်ပုံ / ဗီဒီယို ထည့်ရန်</string>
+    <string name="change_media">မီဒီယာ ပြောင်းရန်</string>
+    <string name="media_attached">မီဒီယာ ထည့်ပြီးပါပြီ ✓</string>
+    <string name="post_to">တင်မည့်နေရာ:</string>
+    <string name="post">တင်မည်</string>
+    <string name="share_info">တင်မည်ကို နှိပ်လိုက်ပါက သက်ဆိုင်ရာ App ၏ ကိုယ်ပိုင် Share စာမျက်နှာကို ဖွင့်ပေးမည်ဖြစ်ပြီး နောက်ဆုံးတင်ခြင်းကို App တစ်ခုချင်းစီတွင် ကိုယ်တိုင်အတည်ပြုပေးရပါမည်။</string>
+
+    <!-- Share -->
+    <string name="share_to_platform">%1$s သို့ မျှဝေရန်</string>
+    <string name="platform_not_found">%1$s ကို မတွေ့ပါ — App တစ်ခုရွေးပါ</string>
+    <string name="tiktok_requires_media">TikTok သို့ မျှဝေရန် ဓာတ်ပုံ သို့မဟုတ် ဗီဒီယို လိုအပ်ပါသည် — မီဒီယာထည့်ပေးပါ။</string>
+</resources>
