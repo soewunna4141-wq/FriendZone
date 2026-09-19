@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 /**
@@ -46,7 +47,11 @@ fun ComposerScreen() {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("FriendZone") })
+            TopAppBar(
+                title = {
+                    Text(stringResource(R.string.composer_title))
+                }
+            )
         }
     ) { padding ->
         Column(
@@ -61,24 +66,44 @@ fun ComposerScreen() {
             OutlinedTextField(
                 value = caption,
                 onValueChange = { caption = it },
-                label = { Text("What's on your mind?") },
+                label = {
+                    Text(stringResource(R.string.composer_hint))
+                },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 4
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = { pickMedia.launch("*/*") }) {
-                    Text(if (mediaUri == null) "Add photo / video" else "Change media")
+                Button(
+                    onClick = {
+                        pickMedia.launch("*/*")
+                    }
+                ) {
+                    Text(
+                        if (mediaUri == null) {
+                            stringResource(R.string.add_media)
+                        } else {
+                            stringResource(R.string.change_media)
+                        }
+                    )
                 }
+
                 Spacer(Modifier.width(12.dp))
+
                 if (mediaUri != null) {
-                    Text("Media attached ✓", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        stringResource(R.string.media_attached),
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
-            Text("Post to:", style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.post_to),
+                style = MaterialTheme.typography.titleMedium
+            )
 
             Platform.entries.forEach { platform ->
                 Row(
@@ -91,6 +116,7 @@ fun ComposerScreen() {
                             selectedPlatforms[platform] = checked
                         }
                     )
+
                     Text(platform.label)
                 }
             }
@@ -99,25 +125,38 @@ fun ComposerScreen() {
 
             Button(
                 onClick = {
-                    val chosen = selectedPlatforms.filterValues { it }.keys.toList()
-                    if (chosen.isEmpty() || caption.isBlank() && mediaUri == null) {
+                    val chosen =
+                        selectedPlatforms
+                            .filterValues { it }
+                            .keys
+                            .toList()
+
+                    if (
+                        chosen.isEmpty() ||
+                        (caption.isBlank() && mediaUri == null)
+                    ) {
                         return@Button
                     }
+
                     val content = PostContent(
                         caption = caption,
                         mediaUri = mediaUri,
                         mediaMimeType = mediaMime
                     )
-                    ShareDispatcher.shareToAll(context, chosen, content)
+
+                    ShareDispatcher.shareToAll(
+                        context,
+                        chosen,
+                        content
+                    )
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Post")
+                Text(stringResource(R.string.post))
             }
 
             Text(
-                "Tapping Post opens each platform's own share screen so you " +
-                    "make the final tap on every app yourself.",
+                stringResource(R.string.share_info),
                 style = MaterialTheme.typography.bodySmall
             )
         }
