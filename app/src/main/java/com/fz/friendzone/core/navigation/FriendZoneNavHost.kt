@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.fz.friendzone.feature.account.AccountScreen
 import com.fz.friendzone.feature.share.ComposerScreen
 
 @Composable
@@ -16,6 +17,10 @@ fun FriendZoneNavHost() {
     ) {
         composable(NavigationRoutes.COMPOSER) {
             ComposerScreen()
+        }
+
+        composable(NavigationRoutes.ACCOUNT) {
+            AccountScreen()
         }
     }
 }
