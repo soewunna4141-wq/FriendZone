@@ -13,10 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.fz.friendzone.Platform
-import com.fz.friendzone.PostContent
 import com.fz.friendzone.R
-import com.fz.friendzone.ShareDispatcher
 
 /**
  * Main screen: type a caption, optionally attach media, tick which
