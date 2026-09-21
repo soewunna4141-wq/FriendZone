@@ -6,13 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fz.friendzone.app.FriendZoneDependencies
 import com.fz.friendzone.core.model.Account
 
 @Composable
 fun AccountScreen() {
 
     val viewModel: AccountViewModel = viewModel(
-        factory = AccountViewModelFactory()
+        factory = FriendZoneDependencies.accountViewModelFactory
     )
 
     val uiState by viewModel.uiState.collectAsState()
