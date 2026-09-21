@@ -22,4 +22,12 @@ class AccountViewModel(
     )
 
     val uiState: StateFlow<AccountUiState> = _uiState.asStateFlow()
+
+    fun saveAccount(account: Account) {
+        repository.saveAccount(account)
+
+        _uiState.value = AccountUiState(
+            account = account
+        )
+    }
 }
