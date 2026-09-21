@@ -31,10 +31,12 @@ fun AccountScreen(
 
         Button(
             onClick = {
-                viewModel.saveAccount(
-                    Account(
-                        id = account.id,
-                        isActive = !account.isActive
+                viewModel.onAction(
+                    AccountAction.Save(
+                        Account(
+                            id = account.id,
+                            isActive = !account.isActive
+                        )
                     )
                 )
             }
