@@ -12,8 +12,12 @@ data class ProfileUiState(
 )
 
 sealed interface ProfileAction {
+
     data object Load : ProfileAction
-    data class Save(val profile: Profile) : ProfileAction
+
+    data class Save(
+        val profile: Profile
+    ) : ProfileAction
 }
 
 class ProfileViewModel(
@@ -21,32 +25,40 @@ class ProfileViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
-        ProfileUiState(
-            profile = repository.getProfile()
-        )
+        ProfileUiState()
     )
 
-    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<ProfileUiState> =
+        _uiState.asStateFlow()
+
+    init {
+        onAction(ProfileAction.Load)
+    }
 
     fun onAction(action: ProfileAction) {
         when (action) {
-            ProfileAction.Load -> {
-                val profile = repository.getProfile()
 
-                _uiState.value = ProfileUiState(
-                    profile = profile
-                )
+            ProfileAction.Load -> {
+                loadProfile()
             }
 
             is ProfileAction.Save -> {
-                repository.saveProfile(action.profile)
-
-                val savedProfile = repository.getProfile()
-
-                _uiState.value = ProfileUiState(
-                    profile = savedProfile
-                )
+                saveProfile(action.profile)
             }
         }
+    }
+
+    private fun loadProfile() {
+        val profile = repository.getProfile()
+
+        _uiState.value = ProfileUiState(
+            profile = profile
+        )
+    }
+
+    private fun saveProfile(profile: Profile) {
+        repository.saveProfile(profile)
+
+        loadProfile()
     }
 }
