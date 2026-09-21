@@ -14,5 +14,15 @@ fun AccountScreen() {
         factory = AccountViewModelFactory(repository)
     )
 
-    Text(text = "Account")
+    val uiState = viewModel.getUiState()
+
+    val account = uiState.account
+
+    if (account == null) {
+        Text(text = "No account")
+    } else {
+        Text(
+            text = "Account ID: ${account.id}\nActive: ${account.isActive}"
+        )
+    }
 }
