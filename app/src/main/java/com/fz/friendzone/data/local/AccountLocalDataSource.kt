@@ -6,4 +6,5 @@ interface AccountLocalDataSource {
 
     fun getAccount(): Account?
 
+    fun saveAccount(account: Account)
 }
