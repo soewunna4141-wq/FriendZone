@@ -12,4 +12,8 @@ class InMemoryAccountLocalDataSource : AccountLocalDataSource {
     override fun getAccount(): Account? {
         return account
     }
+
+    override fun saveAccount(account: Account) {
+        this.account = account
+    }
 }
