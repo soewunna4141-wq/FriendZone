@@ -11,6 +11,11 @@ data class AccountUiState(
     val account: Account? = null
 )
 
+sealed interface AccountAction {
+    data object Load : AccountAction
+    data class Save(val account: Account) : AccountAction
+}
+
 class AccountViewModel(
     private val repository: AccountRepository
 ) : ViewModel() {
@@ -23,13 +28,25 @@ class AccountViewModel(
 
     val uiState: StateFlow<AccountUiState> = _uiState.asStateFlow()
 
-    fun saveAccount(account: Account) {
-        repository.saveAccount(account)
+    fun onAction(action: AccountAction) {
+        when (action) {
+            AccountAction.Load -> {
+                val account = repository.getAccount()
 
-        val savedAccount = repository.getAccount()
+                _uiState.value = AccountUiState(
+                    account = account
+                )
+            }
 
-        _uiState.value = AccountUiState(
-            account = savedAccount
-        )
+            is AccountAction.Save -> {
+                repository.saveAccount(action.account)
+
+                val savedAccount = repository.getAccount()
+
+                _uiState.value = AccountUiState(
+                    account = savedAccount
+                )
+            }
+        }
     }
 }
