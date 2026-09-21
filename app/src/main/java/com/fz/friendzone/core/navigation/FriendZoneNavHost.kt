@@ -4,11 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.fz.friendzone.FriendZoneApplication
 import com.fz.friendzone.feature.account.AccountScreen
 import com.fz.friendzone.feature.share.ComposerScreen
 
 @Composable
-fun FriendZoneNavHost() {
+fun FriendZoneNavHost(
+    application: FriendZoneApplication
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -20,7 +23,9 @@ fun FriendZoneNavHost() {
         }
 
         composable(NavigationRoutes.ACCOUNT) {
-            AccountScreen()
+            AccountScreen(
+                dependencies = application.dependencies
+            )
         }
     }
 }
