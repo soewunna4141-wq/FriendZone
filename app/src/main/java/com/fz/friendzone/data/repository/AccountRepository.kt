@@ -6,4 +6,5 @@ interface AccountRepository {
 
     fun getAccount(): Account?
 
+    fun saveAccount(account: Account)
 }
