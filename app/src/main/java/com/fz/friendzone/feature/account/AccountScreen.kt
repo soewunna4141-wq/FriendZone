@@ -7,15 +7,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fz.friendzone.core.model.Account
-import com.fz.friendzone.data.repository.AccountRepositoryFactory
 
 @Composable
 fun AccountScreen() {
 
-    val repository = AccountRepositoryFactory.create()
-
     val viewModel: AccountViewModel = viewModel(
-        factory = AccountViewModelFactory(repository)
+        factory = AccountViewModelFactory()
     )
 
     val uiState by viewModel.uiState.collectAsState()
