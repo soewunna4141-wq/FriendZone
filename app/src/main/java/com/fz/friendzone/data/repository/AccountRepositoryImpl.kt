@@ -10,4 +10,8 @@ class AccountRepositoryImpl(
     override fun getAccount(): Account? {
         return localDataSource.getAccount()
     }
+
+    override fun saveAccount(account: Account) {
+        localDataSource.saveAccount(account)
+    }
 }
