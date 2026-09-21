@@ -1,10 +1,12 @@
 package com.fz.friendzone.feature.account
 
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fz.friendzone.core.model.Account
 import com.fz.friendzone.data.repository.AccountRepositoryFactory
 
 @Composable
@@ -26,5 +28,18 @@ fun AccountScreen() {
         Text(
             text = "Account ID: ${account.id}\nActive: ${account.isActive}"
         )
+
+        Button(
+            onClick = {
+                viewModel.saveAccount(
+                    Account(
+                        id = account.id,
+                        isActive = !account.isActive
+                    )
+                )
+            }
+        ) {
+            Text(text = "Toggle Active")
+        }
     }
 }
