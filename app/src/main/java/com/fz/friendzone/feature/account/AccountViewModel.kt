@@ -26,8 +26,10 @@ class AccountViewModel(
     fun saveAccount(account: Account) {
         repository.saveAccount(account)
 
+        val savedAccount = repository.getAccount()
+
         _uiState.value = AccountUiState(
-            account = account
+            account = savedAccount
         )
     }
 }
