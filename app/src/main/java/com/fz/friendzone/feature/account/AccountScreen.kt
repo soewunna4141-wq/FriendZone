@@ -10,10 +10,12 @@ import com.fz.friendzone.app.FriendZoneDependencies
 import com.fz.friendzone.core.model.Account
 
 @Composable
-fun AccountScreen() {
+fun AccountScreen(
+    dependencies: FriendZoneDependencies
+) {
 
     val viewModel: AccountViewModel = viewModel(
-        factory = FriendZoneDependencies.accountViewModelFactory
+        factory = dependencies.accountViewModelFactory
     )
 
     val uiState by viewModel.uiState.collectAsState()
