@@ -1,22 +1,21 @@
 package com.fz.friendzone
-import com.fz.friendzone.core.navigation.FriendZoneNavHost
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
+import com.fz.friendzone.core.navigation.FriendZoneNavHost
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val friendZoneApplication = application as FriendZoneApplication
+
         setContent {
-            MaterialTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    FriendZoneNavHost()
-                }
-            }
+            FriendZoneNavHost(
+                application = friendZoneApplication
+            )
         }
     }
 }
