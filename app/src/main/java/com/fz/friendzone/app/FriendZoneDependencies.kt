@@ -4,7 +4,7 @@ import com.fz.friendzone.data.repository.AccountRepository
 import com.fz.friendzone.data.repository.AccountRepositoryFactory
 import com.fz.friendzone.feature.account.AccountViewModelFactory
 
-object FriendZoneDependencies {
+class FriendZoneDependencies {
 
     val accountRepository: AccountRepository by lazy {
         AccountRepositoryFactory.create()
