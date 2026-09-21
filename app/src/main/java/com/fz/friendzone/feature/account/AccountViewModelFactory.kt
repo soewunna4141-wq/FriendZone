@@ -2,11 +2,11 @@ package com.fz.friendzone.feature.account
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.fz.friendzone.data.repository.AccountRepositoryFactory
+import com.fz.friendzone.data.repository.AccountRepository
 
-class AccountViewModelFactory : ViewModelProvider.Factory {
-
-    private val repository = AccountRepositoryFactory.create()
+class AccountViewModelFactory(
+    private val repository: AccountRepository
+) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
