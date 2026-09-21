@@ -3,6 +3,9 @@ package com.fz.friendzone.feature.account
 import androidx.lifecycle.ViewModel
 import com.fz.friendzone.core.model.Account
 import com.fz.friendzone.data.repository.AccountRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 data class AccountUiState(
     val account: Account? = null
@@ -12,13 +15,11 @@ class AccountViewModel(
     private val repository: AccountRepository
 ) : ViewModel() {
 
-    fun getAccount(): Account? {
-        return repository.getAccount()
-    }
-
-    fun getUiState(): AccountUiState {
-        return AccountUiState(
-            account = getAccount()
+    private val _uiState = MutableStateFlow(
+        AccountUiState(
+            account = repository.getAccount()
         )
-    }
+    )
+
+    val uiState: StateFlow<AccountUiState> = _uiState.asStateFlow()
 }
