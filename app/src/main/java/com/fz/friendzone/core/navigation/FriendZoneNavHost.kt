@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fz.friendzone.FriendZoneApplication
 import com.fz.friendzone.feature.account.AccountScreen
+import com.fz.friendzone.feature.profile.ProfileScreen
 import com.fz.friendzone.feature.share.ComposerScreen
 
 @Composable
@@ -24,6 +25,12 @@ fun FriendZoneNavHost(
 
         composable(NavigationRoutes.ACCOUNT) {
             AccountScreen(
+                dependencies = application.dependencies
+            )
+        }
+
+        composable(NavigationRoutes.PROFILE) {
+            ProfileScreen(
                 dependencies = application.dependencies
             )
         }
