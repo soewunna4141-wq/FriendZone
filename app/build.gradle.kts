@@ -13,6 +13,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
@@ -54,6 +56,7 @@ dependencies {
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test:runner:1.6.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
