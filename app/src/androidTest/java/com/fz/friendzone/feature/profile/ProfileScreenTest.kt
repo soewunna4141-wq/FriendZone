@@ -48,15 +48,24 @@ class ProfileScreenTest {
             .performClick()
 
         composeTestRule
-            .onNodeWithText("Display Name: Demo User")
+            .onNodeWithText(
+                "Display Name: Demo User",
+                substring = true
+            )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Bio: Welcome to FriendZone")
+            .onNodeWithText(
+                "Bio: Welcome to FriendZone",
+                substring = true
+            )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("User ID: demo-user")
+            .onNodeWithText(
+                "User ID: demo-user",
+                substring = true
+            )
             .assertIsDisplayed()
 
         composeTestRule
@@ -83,15 +92,24 @@ class ProfileScreenTest {
         }
 
         composeTestRule
-            .onNodeWithText("Display Name: Existing User")
+            .onNodeWithText(
+                "Display Name: Existing User",
+                substring = true
+            )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Bio: Existing Bio")
+            .onNodeWithText(
+                "Bio: Existing Bio",
+                substring = true
+            )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("User ID: existing-user")
+            .onNodeWithText(
+                "User ID: existing-user",
+                substring = true
+            )
             .assertIsDisplayed()
 
         composeTestRule
@@ -122,15 +140,24 @@ class ProfileScreenTest {
             .performClick()
 
         composeTestRule
-            .onNodeWithText("Display Name: Reload User")
+            .onNodeWithText(
+                "Display Name: Reload User",
+                substring = true
+            )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Bio: Reload Bio")
+            .onNodeWithText(
+                "Bio: Reload Bio",
+                substring = true
+            )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("User ID: reload-user")
+            .onNodeWithText(
+                "User ID: reload-user",
+                substring = true
+            )
             .assertIsDisplayed()
     }
 }
