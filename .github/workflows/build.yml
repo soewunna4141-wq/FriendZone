@@ -1,4 +1,4 @@
-name: Build Debug APK
+name: Build Debug APK and Run UI Tests
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +37,15 @@ jobs:
 
       - name: Build debug APK
         run: gradle assembleDebug --stacktrace
+
+      - name: Run Android UI tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          script: gradle connectedDebugAndroidTest --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
