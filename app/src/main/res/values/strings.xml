@@ -15,4 +15,7 @@
     <string name="share_to_platform">Share to %1$s</string>
     <string name="platform_not_found">%1$s not found - choose an app</string>
     <string name="tiktok_requires_media">TikTok requires a photo or video - add media before sharing to TikTok.</string>
+
+    <!-- News -->
+    <string name="news_no_posts">No posts yet</string>
 </resources>
