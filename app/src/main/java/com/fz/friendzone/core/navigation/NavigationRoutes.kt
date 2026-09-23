@@ -7,4 +7,6 @@ object NavigationRoutes {
     const val ACCOUNT = "account"
 
     const val PROFILE = "profile"
+
+    const val NEWS = "news"
 }
