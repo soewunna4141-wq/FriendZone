@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fz.friendzone.FriendZoneApplication
 import com.fz.friendzone.feature.account.AccountScreen
+import com.fz.friendzone.feature.news.NewsScreen
 import com.fz.friendzone.feature.profile.ProfileScreen
 import com.fz.friendzone.feature.share.ComposerScreen
 
@@ -33,6 +34,10 @@ fun FriendZoneNavHost(
             ProfileScreen(
                 dependencies = application.dependencies
             )
+        }
+
+        composable(NavigationRoutes.NEWS) {
+            NewsScreen()
         }
     }
 }
