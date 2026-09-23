@@ -14,8 +14,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.data.repository.NewsRepositoryFactory
 
@@ -75,7 +77,9 @@ private fun NewsPostList(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "No posts yet")
+            Text(
+                text = stringResource(R.string.news_no_posts)
+            )
         }
         return
     }
