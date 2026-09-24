@@ -2,7 +2,6 @@ package com.fz.friendzone.feature.news
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,20 +23,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.data.repository.NewsRepository
+import com.fz.friendzone.data.repository.ProfileRepository
 
 @Composable
 fun NewsScreen(
-    repository: NewsRepository
+    repository: NewsRepository,
+    profileRepository: ProfileRepository
 ) {
     val viewModel: NewsViewModel = viewModel(
-        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : androidx.lifecycle.ViewModel> create(
-                modelClass: Class<T>
-            ): T {
-                return NewsViewModel(repository) as T
-            }
-        }
+        factory = NewsViewModelFactory(
+            newsRepository = repository,
+            profileRepository = profileRepository
+        )
     )
 
     val uiState by viewModel.uiState.collectAsState()
@@ -112,7 +109,7 @@ private fun NewsPostCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium
     ) {
-        Column(
+        androidx.compose.foundation.layout.Column(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
