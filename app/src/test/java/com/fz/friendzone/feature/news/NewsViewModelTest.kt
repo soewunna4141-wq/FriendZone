@@ -1,5 +1,6 @@
 package com.fz.friendzone.feature.news
 
+import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.data.repository.NewsRepository
 import org.junit.Assert.assertEquals
@@ -39,7 +40,7 @@ class NewsViewModelTest {
     fun loadAction_whenRepositoryFails_updatesUiStateWithError() {
         val repository = object : NewsRepository {
             override fun getPosts(): List<Post> {
-                throw IllegalStateException("Load failed")
+                return repositoryError()
             }
         }
 
@@ -50,8 +51,12 @@ class NewsViewModelTest {
         viewModel.onAction(NewsAction.Load)
 
         assertEquals(
-            NewsUiState.Error("Load failed"),
+            NewsUiState.Error(R.string.news_load_error),
             viewModel.uiState.value
         )
+    }
+
+    private fun repositoryError(): List<Post> {
+        throw IllegalStateException("Load failed")
     }
 }
