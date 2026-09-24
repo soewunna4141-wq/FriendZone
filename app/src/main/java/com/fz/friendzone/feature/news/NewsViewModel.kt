@@ -1,6 +1,7 @@
 package com.fz.friendzone.feature.news
 
 import androidx.lifecycle.ViewModel
+import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.data.repository.NewsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,9 +29,9 @@ class NewsViewModel(
             repository.getPosts()
         }.onSuccess { posts ->
             _uiState.value = NewsUiState.Success(posts)
-        }.onFailure { error ->
+        }.onFailure {
             _uiState.value = NewsUiState.Error(
-                error.message ?: "Unable to load posts"
+                messageResId = R.string.news_load_error
             )
         }
     }
