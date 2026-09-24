@@ -1,5 +1,6 @@
 package com.fz.friendzone.feature.news
 
+import androidx.annotation.StringRes
 import com.fz.friendzone.core.model.Post
 
 sealed interface NewsUiState {
@@ -11,6 +12,6 @@ sealed interface NewsUiState {
     ) : NewsUiState
 
     data class Error(
-        val message: String
+        @StringRes val messageResId: Int
     ) : NewsUiState
 }
