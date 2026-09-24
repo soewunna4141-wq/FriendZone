@@ -11,6 +11,12 @@ class ProfileRepositoryImpl(
         return localDataSource.getProfile()
     }
 
+    override fun getProfile(userId: String): Profile? {
+        return localDataSource.getProfile()?.takeIf { profile ->
+            profile.userId == userId
+        }
+    }
+
     override fun saveProfile(profile: Profile) {
         localDataSource.saveProfile(profile)
     }
