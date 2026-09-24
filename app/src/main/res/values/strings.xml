@@ -18,4 +18,10 @@
 
     <!-- News -->
     <string name="news_no_posts">No posts yet</string>
+
+    <!-- Account -->
+    <string name="account_no_account">No account</string>
+    <string name="account_id">Account ID: %1$s</string>
+    <string name="account_active">Active: %1$s</string>
+    <string name="account_toggle_active">Toggle Active</string>
 </resources>
