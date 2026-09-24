@@ -10,6 +10,12 @@ class InMemoryProfileLocalDataSource : ProfileLocalDataSource {
         return profile
     }
 
+    override fun getProfile(userId: String): Profile? {
+        return profile?.takeIf { storedProfile ->
+            storedProfile.userId == userId
+        }
+    }
+
     override fun saveProfile(profile: Profile) {
         this.profile = profile
     }
