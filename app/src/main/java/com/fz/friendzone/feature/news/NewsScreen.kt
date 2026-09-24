@@ -19,21 +19,23 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
-import com.fz.friendzone.data.repository.NewsRepositoryFactory
+import com.fz.friendzone.data.repository.NewsRepository
 
 @Composable
 fun NewsScreen(
-    viewModel: NewsViewModel = viewModel(
+    repository: NewsRepository
+) {
+    val viewModel: NewsViewModel = viewModel(
         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(
                 modelClass: Class<T>
             ): T {
-                return NewsRepositoryFactory.createViewModel() as T
+                return NewsViewModel(repository) as T
             }
         }
     )
-) {
+
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
