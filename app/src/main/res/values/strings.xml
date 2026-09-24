@@ -18,6 +18,7 @@
 
     <!-- News -->
     <string name="news_no_posts">No posts yet</string>
+    <string name="news_load_error">Unable to load posts</string>
 
     <!-- Account -->
     <string name="account_no_account">No account</string>
