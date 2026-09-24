@@ -62,7 +62,7 @@ fun NewsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = state.message,
+                    text = stringResource(state.messageResId),
                     modifier = Modifier.padding(16.dp)
                 )
             }
