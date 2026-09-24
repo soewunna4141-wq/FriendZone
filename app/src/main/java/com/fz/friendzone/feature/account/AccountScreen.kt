@@ -5,7 +5,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fz.friendzone.R
 import com.fz.friendzone.app.FriendZoneDependencies
 import com.fz.friendzone.core.model.Account
 
@@ -23,10 +25,26 @@ fun AccountScreen(
     val account = uiState.account
 
     if (account == null) {
-        Text(text = "No account")
+        Text(
+            text = stringResource(R.string.account_no_account)
+        )
     } else {
         Text(
-            text = "Account ID: ${account.id}\nActive: ${account.isActive}"
+            text = buildString {
+                append(
+                    stringResource(
+                        R.string.account_id,
+                        account.id
+                    )
+                )
+                append("\n")
+                append(
+                    stringResource(
+                        R.string.account_active,
+                        account.isActive
+                    )
+                )
+            }
         )
 
         Button(
@@ -41,7 +59,11 @@ fun AccountScreen(
                 )
             }
         ) {
-            Text(text = "Toggle Active")
+            Text(
+                text = stringResource(
+                    R.string.account_toggle_active
+                )
+            )
         }
     }
 }
