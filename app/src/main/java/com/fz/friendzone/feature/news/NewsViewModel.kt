@@ -20,6 +20,19 @@ class NewsViewModel(
     fun onAction(action: NewsAction) {
         when (action) {
             NewsAction.Load -> loadPosts()
+            is NewsAction.CreatePost -> createPost(action.post)
+        }
+    }
+
+    private fun createPost(post: com.fz.friendzone.core.model.Post) {
+        runCatching {
+            newsRepository.savePost(post)
+        }.onSuccess {
+            loadPosts()
+        }.onFailure {
+            _uiState.value = NewsUiState.Error(
+                messageResId = R.string.news_load_error
+            )
         }
     }
 
