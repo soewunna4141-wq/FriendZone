@@ -2,6 +2,7 @@ package com.fz.friendzone.feature.news
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
@@ -156,6 +157,50 @@ class NewsScreenTest {
         }
 
         composeTestRule.onNodeWithText("T")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun newsScreen_displaysAuthorAvatarWithProfileImageUrl() {
+        val repository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(
+                    Post(
+                        id = "post-1",
+                        userId = "user-1",
+                        caption = "Profile image test post"
+                    )
+                )
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            private val profile = Profile(
+                userId = "user-1",
+                displayName = "Test User",
+                profileImageUrl = "https://example.com/profile.jpg"
+            )
+
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = repository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription("Test User")
             .assertIsDisplayed()
     }
 }
