@@ -7,4 +7,6 @@ interface UserRepository {
     fun getCurrentUser(): User?
 
     fun getUser(userId: String): User?
+
+    fun saveUser(user: User)
 }
