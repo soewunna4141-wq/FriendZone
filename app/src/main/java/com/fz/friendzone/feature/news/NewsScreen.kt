@@ -23,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fz.friendzone.R
+import com.fz.friendzone.core.model.Post
+import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 
@@ -97,14 +99,18 @@ private fun NewsPostList(
             items = posts,
             key = { postUiModel -> postUiModel.post.id }
         ) { postUiModel ->
-            NewsPostCard(post = postUiModel.post)
+            NewsPostCard(
+                post = postUiModel.post,
+                profile = postUiModel.profile
+            )
         }
     }
 }
 
 @Composable
 private fun NewsPostCard(
-    post: com.fz.friendzone.core.model.Post
+    post: Post,
+    profile: Profile?
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -113,9 +119,17 @@ private fun NewsPostCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+            profile?.displayName?.let { displayName ->
+                Text(
+                    text = displayName,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
             Text(
                 text = post.caption,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }
