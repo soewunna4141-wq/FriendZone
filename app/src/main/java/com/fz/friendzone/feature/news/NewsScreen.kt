@@ -13,14 +13,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +39,7 @@ import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
+import java.util.UUID
 
 @Composable
 fun NewsScreen(
@@ -48,6 +54,10 @@ fun NewsScreen(
     )
 
     val uiState by viewModel.uiState.collectAsState()
+
+    var caption by remember {
+        mutableStateOf("")
+    }
 
     LaunchedEffect(Unit) {
         viewModel.onAction(NewsAction.Load)
@@ -64,7 +74,36 @@ fun NewsScreen(
         }
 
         is NewsUiState.Success -> {
-            NewsPostList(posts = state.posts)
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                NewsCreatePost(
+                    caption = caption,
+                    onCaptionChange = { caption = it },
+                    onCreatePost = {
+                        val trimmedCaption = caption.trim()
+
+                        if (trimmedCaption.isNotEmpty()) {
+                            viewModel.onAction(
+                                NewsAction.CreatePost(
+                                    Post(
+                                        id = UUID.randomUUID().toString(),
+                                        userId = "",
+                                        caption = trimmedCaption
+                                    )
+                                )
+                            )
+
+                            caption = ""
+                        }
+                    }
+                )
+
+                NewsPostList(
+                    posts = state.posts,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         is NewsUiState.Error -> {
@@ -82,12 +121,54 @@ fun NewsScreen(
 }
 
 @Composable
+private fun NewsCreatePost(
+    caption: String,
+    onCaptionChange: (String) -> Unit,
+    onCreatePost: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedTextField(
+                value = caption,
+                onValueChange = onCaptionChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = {
+                    Text(
+                        text = stringResource(R.string.news_create_post_caption)
+                    )
+                },
+                singleLine = false
+            )
+
+            Button(
+                onClick = onCreatePost,
+                enabled = caption.trim().isNotEmpty(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.news_create_post_button)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun NewsPostList(
-    posts: List<NewsPostUiModel>
+    posts: List<NewsPostUiModel>,
+    modifier: Modifier = Modifier
 ) {
     if (posts.isEmpty()) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -98,8 +179,12 @@ private fun NewsPostList(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            bottom = 16.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(
