@@ -2,6 +2,8 @@ package com.fz.friendzone.feature.news
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fz.friendzone.R
-import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 
@@ -73,7 +74,7 @@ fun NewsScreen(
 
 @Composable
 private fun NewsPostList(
-    posts: List<Post>
+    posts: List<NewsPostUiModel>
 ) {
     if (posts.isEmpty()) {
         Box(
@@ -89,27 +90,27 @@ private fun NewsPostList(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(
             items = posts,
-            key = { post -> post.id }
-        ) { post ->
-            NewsPostCard(post = post)
+            key = { postUiModel -> postUiModel.post.id }
+        ) { postUiModel ->
+            NewsPostCard(post = postUiModel.post)
         }
     }
 }
 
 @Composable
 private fun NewsPostCard(
-    post: Post
+    post: com.fz.friendzone.core.model.Post
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium
     ) {
-        androidx.compose.foundation.layout.Column(
+        Column(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
