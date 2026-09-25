@@ -237,4 +237,75 @@ class NewsViewModelTest {
             viewModel.uiState.value
         )
     }
+
+    @Test
+    fun createPost_reloadsPostsInRepositoryOrder() {
+        val olderPost = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Older post",
+            createdAt = 1000L
+        )
+
+        val newerPost = Post(
+            id = "post-2",
+            userId = "user-2",
+            caption = "Newer post",
+            createdAt = 2000L
+        )
+
+        val savedPosts = mutableListOf<Post>()
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return savedPosts.sortedByDescending { post ->
+                    post.createdAt
+                }
+            }
+
+            override fun savePost(post: Post) {
+                savedPosts.add(post)
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun getProfile(userId: String): Profile? {
+                return null
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository
+        )
+
+        viewModel.onAction(
+            NewsAction.CreatePost(olderPost)
+        )
+
+        viewModel.onAction(
+            NewsAction.CreatePost(newerPost)
+        )
+
+        val state = viewModel.uiState.value as NewsUiState.Success
+
+        assertEquals(
+            listOf(
+                NewsPostUiModel(
+                    post = newerPost,
+                    profile = null
+                ),
+                NewsPostUiModel(
+                    post = olderPost,
+                    profile = null
+                )
+            ),
+            state.posts
+        )
+    }
 }
