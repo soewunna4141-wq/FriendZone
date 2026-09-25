@@ -160,7 +160,7 @@ class NewsScreenTest {
     }
 
     @Test
-    fun newsScreen_acceptsAuthorProfileImageUrl() {
+    fun newsScreen_displaysAuthorAvatarWithProfileImageUrl() {
         val repository = object : NewsRepository {
             override fun getPosts(): List<Post> {
                 return listOf(
@@ -177,7 +177,7 @@ class NewsScreenTest {
             private val profile = Profile(
                 userId = "user-1",
                 displayName = "Test User",
-                profileImageUrl = "https://example.com/profile.jpg"
+                profileImageUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
             )
 
             override fun getProfile(): Profile? {
