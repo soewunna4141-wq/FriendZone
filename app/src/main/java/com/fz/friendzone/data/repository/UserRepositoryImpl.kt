@@ -14,4 +14,8 @@ class UserRepositoryImpl(
     override fun getUser(userId: String): User? {
         return localDataSource.getUser(userId)
     }
+
+    override fun saveUser(user: User) {
+        localDataSource.saveUser(user)
+    }
 }
