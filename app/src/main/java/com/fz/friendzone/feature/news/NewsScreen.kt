@@ -24,9 +24,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
@@ -129,7 +131,8 @@ private fun NewsPostCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     NewsAuthorAvatar(
-                        displayName = profile.displayName
+                        displayName = profile.displayName,
+                        profileImageUrl = profile.profileImageUrl
                     )
 
                     Text(
@@ -151,7 +154,8 @@ private fun NewsPostCard(
 
 @Composable
 private fun NewsAuthorAvatar(
-    displayName: String
+    displayName: String,
+    profileImageUrl: String?
 ) {
     val initial = displayName
         .trim()
@@ -160,16 +164,27 @@ private fun NewsAuthorAvatar(
         ?.toString()
         ?: "?"
 
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = initial,
-            style = MaterialTheme.typography.titleMedium
+    if (profileImageUrl.isNullOrBlank()) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = initial,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    } else {
+        AsyncImage(
+            model = profileImageUrl,
+            contentDescription = displayName,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
     }
 }
