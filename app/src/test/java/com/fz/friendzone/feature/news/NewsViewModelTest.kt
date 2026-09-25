@@ -24,6 +24,9 @@ class NewsViewModelTest {
             override fun getPosts(): List<Post> {
                 return posts
             }
+
+            override fun savePost(post: Post) {
+            }
         }
 
         val profileRepository = object : ProfileRepository {
@@ -70,6 +73,9 @@ class NewsViewModelTest {
             override fun getPosts(): List<Post> {
                 return listOf(post)
             }
+
+            override fun savePost(post: Post) {
+            }
         }
 
         val profileRepository = object : ProfileRepository {
@@ -115,6 +121,9 @@ class NewsViewModelTest {
             override fun getPosts(): List<Post> {
                 return listOf(post)
             }
+
+            override fun savePost(post: Post) {
+            }
         }
 
         val profileRepository = object : ProfileRepository {
@@ -148,6 +157,9 @@ class NewsViewModelTest {
             override fun getPosts(): List<Post> {
                 error("Test error")
             }
+
+            override fun savePost(post: Post) {
+            }
         }
 
         val profileRepository = object : ProfileRepository {
@@ -167,6 +179,60 @@ class NewsViewModelTest {
         assertEquals(
             NewsUiState.Error(
                 messageResId = com.fz.friendzone.R.string.news_load_error
+            ),
+            viewModel.uiState.value
+        )
+    }
+
+    @Test
+    fun createPost_savesPostAndReloadsPosts() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Created post"
+        )
+
+        val savedPosts = mutableListOf<Post>()
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return savedPosts.toList()
+            }
+
+            override fun savePost(post: Post) {
+                savedPosts.add(post)
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository
+        )
+
+        viewModel.onAction(
+            NewsAction.CreatePost(post)
+        )
+
+        assertEquals(
+            listOf(post),
+            savedPosts
+        )
+
+        assertEquals(
+            NewsUiState.Success(
+                posts = listOf(
+                    NewsPostUiModel(
+                        post = post,
+                        profile = null
+                    )
+                )
             ),
             viewModel.uiState.value
         )
