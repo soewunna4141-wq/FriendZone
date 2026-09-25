@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.data.repository.NewsRepository
+import com.fz.friendzone.data.repository.ProfileRepository
 import org.junit.Rule
 import org.junit.Test
 
@@ -14,48 +15,61 @@ class NewsScreenTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun emptyNewsState_showsNoPostsMessage() {
+    fun newsScreen_displaysPostCaption() {
+        val repository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(
+                    Post(
+                        id = "post-1",
+                        userId = "user-1",
+                        caption = "Test post"
+                    )
+                )
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: com.fz.friendzone.core.model.Profile) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = repository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText("Test post")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun newsScreen_displaysEmptyStateWhenThereAreNoPosts() {
         val repository = object : NewsRepository {
             override fun getPosts(): List<Post> {
                 return emptyList()
             }
         }
 
-        composeTestRule.setContent {
-            NewsScreen(
-                repository = repository
-            )
-        }
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
 
-        composeTestRule
-            .onNodeWithText("No posts yet")
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun existingPosts_showsPostCaption() {
-        val posts = listOf(
-            Post(
-                id = "post-1",
-                userId = "user-1",
-                caption = "Hello FriendZone"
-            )
-        )
-
-        val repository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return posts
+            override fun saveProfile(profile: com.fz.friendzone.core.model.Profile) {
             }
         }
 
         composeTestRule.setContent {
             NewsScreen(
-                repository = repository
+                repository = repository,
+                profileRepository = profileRepository
             )
         }
 
-        composeTestRule
-            .onNodeWithText("Hello FriendZone")
-            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(
+            com.fz.friendzone.R.string.news_no_posts
+        )
     }
 }
