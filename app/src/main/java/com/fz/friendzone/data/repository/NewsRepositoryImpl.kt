@@ -10,4 +10,8 @@ class NewsRepositoryImpl(
     override fun getPosts(): List<Post> {
         return localDataSource.getPosts()
     }
+
+    override fun savePost(post: Post) {
+        localDataSource.savePost(post)
+    }
 }
