@@ -12,4 +12,8 @@ class InMemoryNewsLocalDataSource : NewsLocalDataSource {
                 post.createdAt
             }
     }
+
+    override fun savePost(post: Post) {
+        posts.add(post)
+    }
 }
