@@ -59,7 +59,7 @@ fun NewsScreen(
         mutableStateOf("")
     }
 
-    val currentProfile = profileRepository.getProfile()
+    val currentProfile = viewModel.currentProfile
 
     LaunchedEffect(Unit) {
         viewModel.onAction(NewsAction.Load)
