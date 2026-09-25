@@ -1,14 +1,18 @@
 package com.fz.friendzone.feature.news
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -119,11 +124,20 @@ private fun NewsPostCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            profile?.displayName?.let { displayName ->
-                Text(
-                    text = displayName,
-                    style = MaterialTheme.typography.titleMedium
-                )
+            if (profile != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    NewsAuthorAvatar(
+                        displayName = profile.displayName
+                    )
+
+                    Text(
+                        text = profile.displayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
             }
 
             Text(
@@ -132,5 +146,30 @@ private fun NewsPostCard(
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun NewsAuthorAvatar(
+    displayName: String
+) {
+    val initial = displayName
+        .trim()
+        .firstOrNull()
+        ?.uppercaseChar()
+        ?.toString()
+        ?: "?"
+
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = initial,
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }
