@@ -77,4 +77,48 @@ class InMemoryUserLocalDataSourceTest {
             dataSource.getUser("user-2")
         )
     }
+
+    @Test
+    fun saveUser_storesUserById() {
+        val user = User(
+            id = "user-2",
+            name = "Saved User",
+            username = "saveduser"
+        )
+
+        val dataSource = InMemoryUserLocalDataSource()
+
+        dataSource.saveUser(user)
+
+        assertEquals(
+            user,
+            dataSource.getUser("user-2")
+        )
+    }
+
+    @Test
+    fun saveUser_updatesExistingUserWithSameId() {
+        val originalUser = User(
+            id = "user-1",
+            name = "Original User",
+            username = "original"
+        )
+
+        val updatedUser = User(
+            id = "user-1",
+            name = "Updated User",
+            username = "updated"
+        )
+
+        val dataSource = InMemoryUserLocalDataSource(
+            currentUser = originalUser
+        )
+
+        dataSource.saveUser(updatedUser)
+
+        assertEquals(
+            updatedUser,
+            dataSource.getUser("user-1")
+        )
+    }
 }
