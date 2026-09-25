@@ -68,8 +68,7 @@ class NewsScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText(
-            com.fz.friendzone.R.string.news_no_posts
-        )
+        composeTestRule.onNodeWithText("No posts yet")
+            .assertIsDisplayed()
     }
 }
