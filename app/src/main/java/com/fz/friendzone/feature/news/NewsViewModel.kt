@@ -2,6 +2,7 @@ package com.fz.friendzone.feature.news
 
 import androidx.lifecycle.ViewModel
 import com.fz.friendzone.R
+import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,9 @@ class NewsViewModel(
     private val _uiState = MutableStateFlow<NewsUiState>(NewsUiState.Loading)
 
     val uiState: StateFlow<NewsUiState> = _uiState.asStateFlow()
+
+    val currentProfile: Profile?
+        get() = profileRepository.getProfile()
 
     fun onAction(action: NewsAction) {
         when (action) {
