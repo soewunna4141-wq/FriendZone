@@ -3,10 +3,13 @@ package com.fz.friendzone.feature.news
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -263,5 +266,106 @@ class NewsScreenTest {
 
         composeTestRule.onNodeWithText("T")
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun newsScreen_displaysCreatePostInputAndButton() {
+        val repository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return emptyList()
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            private val profile = Profile(
+                userId = "user-1",
+                displayName = "Test User"
+            )
+
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = repository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText("What is on your mind?")
+            .assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Post")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun newsScreen_createPost_savesPostWithCurrentProfileUserId() {
+        var savedPost: Post? = null
+
+        val repository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return emptyList()
+            }
+
+            override fun savePost(post: Post) {
+                savedPost = post
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            private val profile = Profile(
+                userId = "user-1",
+                displayName = "Test User"
+            )
+
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = repository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText("What is on your mind?")
+            .performTextInput("Created from UI test")
+
+        composeTestRule.onNodeWithText("Post")
+            .performClick()
+
+        composeTestRule.runOnIdle {
+            assertEquals(
+                "user-1",
+                savedPost?.userId
+            )
+
+            assertEquals(
+                "Created from UI test",
+                savedPost?.caption
+            )
+        }
     }
 }
