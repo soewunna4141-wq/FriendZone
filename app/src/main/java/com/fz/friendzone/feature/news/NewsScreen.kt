@@ -132,10 +132,8 @@ private fun NewsPostCard(
                 )
             }
 
-            Text(
-                text = post.caption,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 8.dp)
+            NewsPostContent(
+                caption = post.caption
             )
         }
     }
@@ -159,6 +157,17 @@ private fun NewsAuthorHeader(
             modifier = Modifier.padding(start = 12.dp)
         )
     }
+}
+
+@Composable
+private fun NewsPostContent(
+    caption: String
+) {
+    Text(
+        text = caption,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(top = 8.dp)
+    )
 }
 
 @Composable
