@@ -27,6 +27,9 @@ class NewsScreenTest {
                     )
                 )
             }
+
+            override fun savePost(post: Post) {
+            }
         }
 
         val profileRepository = object : ProfileRepository {
@@ -52,6 +55,9 @@ class NewsScreenTest {
         val repository = object : NewsRepository {
             override fun getPosts(): List<Post> {
                 return emptyList()
+            }
+
+            override fun savePost(post: Post) {
             }
         }
 
@@ -84,6 +90,9 @@ class NewsScreenTest {
                         caption = "Profile test post"
                     )
                 )
+            }
+
+            override fun savePost(post: Post) {
             }
         }
 
@@ -128,6 +137,9 @@ class NewsScreenTest {
                     )
                 )
             }
+
+            override fun savePost(post: Post) {
+            }
         }
 
         val profileRepository = object : ProfileRepository {
@@ -170,6 +182,9 @@ class NewsScreenTest {
                         caption = "Profile image test post"
                     )
                 )
+            }
+
+            override fun savePost(post: Post) {
             }
         }
 
@@ -214,6 +229,9 @@ class NewsScreenTest {
                         caption = "Fallback avatar test post"
                     )
                 )
+            }
+
+            override fun savePost(post: Post) {
             }
         }
 
