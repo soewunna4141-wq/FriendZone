@@ -25,6 +25,9 @@ class UserRepositoryImplTest {
             override fun getUser(userId: String): User? {
                 return null
             }
+
+            override fun saveUser(user: User) {
+            }
         }
 
         val repository = UserRepositoryImpl(
@@ -47,6 +50,9 @@ class UserRepositoryImplTest {
 
             override fun getUser(userId: String): User? {
                 return null
+            }
+
+            override fun saveUser(user: User) {
             }
         }
 
@@ -76,6 +82,9 @@ class UserRepositoryImplTest {
             override fun getUser(userId: String): User? {
                 return if (userId == user.id) user else null
             }
+
+            override fun saveUser(user: User) {
+            }
         }
 
         val repository = UserRepositoryImpl(
@@ -99,6 +108,9 @@ class UserRepositoryImplTest {
             override fun getUser(userId: String): User? {
                 return null
             }
+
+            override fun saveUser(user: User) {
+            }
         }
 
         val repository = UserRepositoryImpl(
@@ -107,6 +119,43 @@ class UserRepositoryImplTest {
 
         assertNull(
             repository.getUser("user-1")
+        )
+    }
+
+    @Test
+    fun saveUser_delegatesToLocalDataSource() {
+        val user = User(
+            id = "user-1",
+            name = "Test User",
+            username = "testuser"
+        )
+
+        var savedUser: User? = null
+
+        val localDataSource = object : UserLocalDataSource {
+
+            override fun getCurrentUser(): User? {
+                return null
+            }
+
+            override fun getUser(userId: String): User? {
+                return null
+            }
+
+            override fun saveUser(user: User) {
+                savedUser = user
+            }
+        }
+
+        val repository = UserRepositoryImpl(
+            localDataSource = localDataSource
+        )
+
+        repository.saveUser(user)
+
+        assertEquals(
+            user,
+            savedUser
         )
     }
 }
