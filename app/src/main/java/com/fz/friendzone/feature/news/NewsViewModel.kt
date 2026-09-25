@@ -29,7 +29,14 @@ class NewsViewModel(
         runCatching {
             newsRepository.getPosts()
         }.onSuccess { posts ->
-            _uiState.value = NewsUiState.Success(posts)
+            val postUiModels = posts.map { post ->
+                NewsPostUiModel(
+                    post = post,
+                    profile = profileRepository.getProfile(post.userId)
+                )
+            }
+
+            _uiState.value = NewsUiState.Success(postUiModels)
         }.onFailure {
             _uiState.value = NewsUiState.Error(
                 messageResId = R.string.news_load_error
