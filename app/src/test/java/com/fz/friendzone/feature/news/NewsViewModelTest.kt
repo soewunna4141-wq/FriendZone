@@ -1,15 +1,17 @@
 package com.fz.friendzone.feature.news
 
-import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
+import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
+import com.fz.friendzone.data.repository.ProfileRepository
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class NewsViewModelTest {
 
     @Test
-    fun loadAction_updatesUiStateWithPosts() {
+    fun loadPosts_returnsSuccessStateWithPosts() {
         val posts = listOf(
             Post(
                 id = "post-1",
@@ -18,45 +20,155 @@ class NewsViewModelTest {
             )
         )
 
-        val repository = object : NewsRepository {
+        val newsRepository = object : NewsRepository {
             override fun getPosts(): List<Post> {
                 return posts
             }
         }
 
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
         val viewModel = NewsViewModel(
-            repository = repository
+            newsRepository = newsRepository,
+            profileRepository = profileRepository
         )
 
         viewModel.onAction(NewsAction.Load)
 
         assertEquals(
-            NewsUiState.Success(posts),
+            NewsUiState.Success(
+                posts = listOf(
+                    NewsPostUiModel(
+                        post = posts[0],
+                        profile = null
+                    )
+                )
+            ),
             viewModel.uiState.value
         )
     }
 
     @Test
-    fun loadAction_whenRepositoryFails_updatesUiStateWithError() {
-        val repository = object : NewsRepository {
+    fun loadPosts_mapsPostUserIdToProfile() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
+
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        val newsRepository = object : NewsRepository {
             override fun getPosts(): List<Post> {
-                return repositoryError()
+                return listOf(post)
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = profile
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
             }
         }
 
         val viewModel = NewsViewModel(
-            repository = repository
+            newsRepository = newsRepository,
+            profileRepository = profileRepository
+        )
+
+        viewModel.onAction(NewsAction.Load)
+
+        val state = viewModel.uiState.value as NewsUiState.Success
+
+        assertEquals(
+            profile,
+            state.posts.single().profile
+        )
+    }
+
+    @Test
+    fun loadPosts_whenProfileUserIdDoesNotMatch_returnsNullProfile() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
+
+        val profile = Profile(
+            userId = "user-2",
+            displayName = "Other User"
+        )
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = profile
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository
+        )
+
+        viewModel.onAction(NewsAction.Load)
+
+        val state = viewModel.uiState.value as NewsUiState.Success
+
+        assertNull(
+            state.posts.single().profile
+        )
+    }
+
+    @Test
+    fun loadPosts_whenRepositoryFails_returnsErrorState() {
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                error("Test error")
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository
         )
 
         viewModel.onAction(NewsAction.Load)
 
         assertEquals(
-            NewsUiState.Error(R.string.news_load_error),
+            NewsUiState.Error(
+                messageResId = com.fz.friendzone.R.string.news_load_error
+            ),
             viewModel.uiState.value
         )
-    }
-
-    private fun repositoryError(): List<Post> {
-        throw IllegalStateException("Load failed")
     }
 }
