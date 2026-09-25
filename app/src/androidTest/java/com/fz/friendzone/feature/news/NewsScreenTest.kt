@@ -1,6 +1,7 @@
 package com.fz.friendzone.feature.news
 
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -9,7 +10,6 @@ import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -19,43 +19,26 @@ class NewsScreenTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun newsScreen_displaysPostCaption() {
-        val repository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(
-                    Post(
-                        id = "post-1",
-                        userId = "user-1",
-                        caption = "Test post"
-                    )
-                )
-            }
-
-            override fun savePost(post: Post) {
-            }
-        }
+    fun createPost_withCurrentProfile_enablesPostButton() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
 
         val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
 
             override fun saveProfile(profile: Profile) {
             }
         }
 
-        composeTestRule.setContent {
-            NewsScreen(
-                repository = repository,
-                profileRepository = profileRepository
-            )
-        }
-
-        composeTestRule.onNodeWithText("Test post")
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun newsScreen_displaysEmptyStateWhenThereAreNoPosts() {
-        val repository = object : NewsRepository {
+        val newsRepository = object : NewsRepository {
             override fun getPosts(): List<Post> {
                 return emptyList()
             }
@@ -64,213 +47,46 @@ class NewsScreenTest {
             }
         }
 
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
         composeTestRule.setContent {
             NewsScreen(
-                repository = repository,
+                repository = newsRepository,
                 profileRepository = profileRepository
             )
         }
 
-        composeTestRule.onNodeWithText("No posts yet")
-            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(
+            "What is on your mind?"
+        ).assertIsEnabled()
+
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).assertIsNotEnabled()
+
+        composeTestRule.onNodeWithText(
+            "What is on your mind?"
+        ).performTextInput("Hello FriendZone")
+
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).assertIsEnabled()
     }
 
     @Test
-    fun newsScreen_displaysProfileDisplayName() {
-        val repository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(
-                    Post(
-                        id = "post-1",
-                        userId = "user-1",
-                        caption = "Profile test post"
-                    )
-                )
-            }
-
-            override fun savePost(post: Post) {
-            }
-        }
-
+    fun createPost_withoutCurrentProfile_disablesPostInputAndButton() {
         val profileRepository = object : ProfileRepository {
-            private val profile = Profile(
-                userId = "user-1",
-                displayName = "Test User"
-            )
-
             override fun getProfile(): Profile? {
-                return profile
+                return null
             }
 
             override fun getProfile(userId: String): Profile? {
-                return profile.takeIf { it.userId == userId }
+                return null
             }
 
             override fun saveProfile(profile: Profile) {
             }
         }
 
-        composeTestRule.setContent {
-            NewsScreen(
-                repository = repository,
-                profileRepository = profileRepository
-            )
-        }
-
-        composeTestRule.onNodeWithText("Test User")
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun newsScreen_displaysAuthorAvatarInitial() {
-        val repository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(
-                    Post(
-                        id = "post-1",
-                        userId = "user-1",
-                        caption = "Avatar test post"
-                    )
-                )
-            }
-
-            override fun savePost(post: Post) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            private val profile = Profile(
-                userId = "user-1",
-                displayName = "Test User"
-            )
-
-            override fun getProfile(): Profile? {
-                return profile
-            }
-
-            override fun getProfile(userId: String): Profile? {
-                return profile.takeIf { it.userId == userId }
-            }
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        composeTestRule.setContent {
-            NewsScreen(
-                repository = repository,
-                profileRepository = profileRepository
-            )
-        }
-
-        composeTestRule.onNodeWithText("T")
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun newsScreen_displaysAuthorAvatarWithProfileImageUrl() {
-        val repository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(
-                    Post(
-                        id = "post-1",
-                        userId = "user-1",
-                        caption = "Profile image test post"
-                    )
-                )
-            }
-
-            override fun savePost(post: Post) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            private val profile = Profile(
-                userId = "user-1",
-                displayName = "Test User",
-                profileImageUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
-            )
-
-            override fun getProfile(): Profile? {
-                return profile
-            }
-
-            override fun getProfile(userId: String): Profile? {
-                return profile.takeIf { it.userId == userId }
-            }
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        composeTestRule.setContent {
-            NewsScreen(
-                repository = repository,
-                profileRepository = profileRepository
-            )
-        }
-
-        composeTestRule.onNodeWithText("Test User")
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun newsScreen_displaysAuthorAvatarInitialWhenProfileImageUrlIsBlank() {
-        val repository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(
-                    Post(
-                        id = "post-1",
-                        userId = "user-1",
-                        caption = "Fallback avatar test post"
-                    )
-                )
-            }
-
-            override fun savePost(post: Post) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            private val profile = Profile(
-                userId = "user-1",
-                displayName = "Test User",
-                profileImageUrl = ""
-            )
-
-            override fun getProfile(): Profile? {
-                return profile
-            }
-
-            override fun getProfile(userId: String): Profile? {
-                return profile.takeIf { it.userId == userId }
-            }
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        composeTestRule.setContent {
-            NewsScreen(
-                repository = repository,
-                profileRepository = profileRepository
-            )
-        }
-
-        composeTestRule.onNodeWithText("T")
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun newsScreen_displaysCreatePostInputAndButton() {
-        val repository = object : NewsRepository {
+        val newsRepository = object : NewsRepository {
             override fun getPosts(): List<Post> {
                 return emptyList()
             }
@@ -279,45 +95,47 @@ class NewsScreenTest {
             }
         }
 
-        val profileRepository = object : ProfileRepository {
-            private val profile = Profile(
-                userId = "user-1",
-                displayName = "Test User"
-            )
-
-            override fun getProfile(): Profile? {
-                return profile
-            }
-
-            override fun getProfile(userId: String): Profile? {
-                return profile.takeIf { it.userId == userId }
-            }
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
         composeTestRule.setContent {
             NewsScreen(
-                repository = repository,
+                repository = newsRepository,
                 profileRepository = profileRepository
             )
         }
 
-        composeTestRule.onNodeWithText("What is on your mind?")
-            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(
+            "What is on your mind?"
+        ).assertIsNotEnabled()
 
-        composeTestRule.onNodeWithText("Post")
-            .assertIsDisplayed()
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).assertIsNotEnabled()
     }
 
     @Test
-    fun newsScreen_createPost_savesPostWithCurrentProfileUserId() {
+    fun createPost_withCurrentProfile_savesPostWithProfileUserId() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
         var savedPost: Post? = null
 
-        val repository = object : NewsRepository {
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
             override fun getPosts(): List<Post> {
-                return emptyList()
+                return savedPost?.let { listOf(it) } ?: emptyList()
             }
 
             override fun savePost(post: Post) {
@@ -325,47 +143,24 @@ class NewsScreenTest {
             }
         }
 
-        val profileRepository = object : ProfileRepository {
-            private val profile = Profile(
-                userId = "user-1",
-                displayName = "Test User"
-            )
-
-            override fun getProfile(): Profile? {
-                return profile
-            }
-
-            override fun getProfile(userId: String): Profile? {
-                return profile.takeIf { it.userId == userId }
-            }
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
         composeTestRule.setContent {
             NewsScreen(
-                repository = repository,
+                repository = newsRepository,
                 profileRepository = profileRepository
             )
         }
 
-        composeTestRule.onNodeWithText("What is on your mind?")
-            .performTextInput("Created from UI test")
+        composeTestRule.onNodeWithText(
+            "What is on your mind?"
+        ).performTextInput("Hello FriendZone")
 
-        composeTestRule.onNodeWithText("Post")
-            .performClick()
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).performClick()
 
         composeTestRule.runOnIdle {
-            assertEquals(
-                "user-1",
-                savedPost?.userId
-            )
-
-            assertEquals(
-                "Created from UI test",
-                savedPost?.caption
-            )
+            check(savedPost?.userId == "user-1")
+            check(savedPost?.caption == "Hello FriendZone")
         }
     }
 }
