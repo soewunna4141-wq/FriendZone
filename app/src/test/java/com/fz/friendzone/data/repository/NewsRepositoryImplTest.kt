@@ -21,6 +21,9 @@ class NewsRepositoryImplTest {
             override fun getPosts(): List<Post> {
                 return posts
             }
+
+            override fun savePost(post: Post) {
+            }
         }
 
         val repository = NewsRepositoryImpl(
@@ -30,5 +33,37 @@ class NewsRepositoryImplTest {
         val result = repository.getPosts()
 
         assertEquals(posts, result)
+    }
+
+    @Test
+    fun savePost_delegatesPostToLocalDataSource() {
+        val savedPosts = mutableListOf<Post>()
+
+        val dataSource = object : NewsLocalDataSource {
+            override fun getPosts(): List<Post> {
+                return savedPosts
+            }
+
+            override fun savePost(post: Post) {
+                savedPosts.add(post)
+            }
+        }
+
+        val repository = NewsRepositoryImpl(
+            localDataSource = dataSource
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Saved post"
+        )
+
+        repository.savePost(post)
+
+        assertEquals(
+            listOf(post),
+            savedPosts
+        )
     }
 }
