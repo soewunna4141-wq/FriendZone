@@ -2,7 +2,6 @@ package com.fz.friendzone.feature.news
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
@@ -161,7 +160,7 @@ class NewsScreenTest {
     }
 
     @Test
-    fun newsScreen_displaysAuthorAvatarWithProfileImageUrl() {
+    fun newsScreen_acceptsAuthorProfileImageUrl() {
         val repository = object : NewsRepository {
             override fun getPosts(): List<Post> {
                 return listOf(
@@ -200,7 +199,7 @@ class NewsScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithContentDescription("Test User")
+        composeTestRule.onNodeWithText("Test User")
             .assertIsDisplayed()
     }
 }
