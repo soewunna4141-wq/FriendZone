@@ -59,6 +59,8 @@ fun NewsScreen(
         mutableStateOf("")
     }
 
+    val currentProfile = profileRepository.getProfile()
+
     LaunchedEffect(Unit) {
         viewModel.onAction(NewsAction.Load)
     }
@@ -80,15 +82,17 @@ fun NewsScreen(
                 NewsCreatePost(
                     caption = caption,
                     onCaptionChange = { caption = it },
+                    enabled = currentProfile != null,
                     onCreatePost = {
                         val trimmedCaption = caption.trim()
+                        val userId = currentProfile?.userId
 
-                        if (trimmedCaption.isNotEmpty()) {
+                        if (trimmedCaption.isNotEmpty() && !userId.isNullOrBlank()) {
                             viewModel.onAction(
                                 NewsAction.CreatePost(
                                     Post(
                                         id = UUID.randomUUID().toString(),
-                                        userId = "",
+                                        userId = userId,
                                         caption = trimmedCaption
                                     )
                                 )
@@ -124,6 +128,7 @@ fun NewsScreen(
 private fun NewsCreatePost(
     caption: String,
     onCaptionChange: (String) -> Unit,
+    enabled: Boolean,
     onCreatePost: () -> Unit
 ) {
     Card(
@@ -145,12 +150,13 @@ private fun NewsCreatePost(
                         text = stringResource(R.string.news_create_post_caption)
                     )
                 },
-                singleLine = false
+                singleLine = false,
+                enabled = enabled
             )
 
             Button(
                 onClick = onCreatePost,
-                enabled = caption.trim().isNotEmpty(),
+                enabled = enabled && caption.trim().isNotEmpty(),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
