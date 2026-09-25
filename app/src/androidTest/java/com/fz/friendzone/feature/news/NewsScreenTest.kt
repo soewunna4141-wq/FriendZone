@@ -115,4 +115,47 @@ class NewsScreenTest {
         composeTestRule.onNodeWithText("Test User")
             .assertIsDisplayed()
     }
+
+    @Test
+    fun newsScreen_displaysAuthorAvatarInitial() {
+        val repository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(
+                    Post(
+                        id = "post-1",
+                        userId = "user-1",
+                        caption = "Avatar test post"
+                    )
+                )
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            private val profile = Profile(
+                userId = "user-1",
+                displayName = "Test User"
+            )
+
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = repository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText("T")
+            .assertIsDisplayed()
+    }
 }
