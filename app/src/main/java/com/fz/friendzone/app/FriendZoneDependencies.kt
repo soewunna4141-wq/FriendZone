@@ -6,6 +6,8 @@ import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.NewsRepositoryFactory
 import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ProfileRepositoryFactory
+import com.fz.friendzone.data.repository.UserRepository
+import com.fz.friendzone.data.repository.UserRepositoryFactory
 import com.fz.friendzone.feature.account.AccountViewModelFactory
 import com.fz.friendzone.feature.profile.ProfileViewModelFactory
 
@@ -29,5 +31,9 @@ class FriendZoneDependencies {
 
     val newsRepository: NewsRepository by lazy {
         NewsRepositoryFactory.create()
+    }
+
+    val userRepository: UserRepository by lazy {
+        UserRepositoryFactory.create()
     }
 }
