@@ -127,20 +127,9 @@ private fun NewsPostCard(
             modifier = Modifier.padding(16.dp)
         ) {
             if (profile != null) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    NewsAuthorAvatar(
-                        displayName = profile.displayName,
-                        profileImageUrl = profile.profileImageUrl
-                    )
-
-                    Text(
-                        text = profile.displayName,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(start = 12.dp)
-                    )
-                }
+                NewsAuthorHeader(
+                    profile = profile
+                )
             }
 
             Text(
@@ -149,6 +138,26 @@ private fun NewsPostCard(
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun NewsAuthorHeader(
+    profile: Profile
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        NewsAuthorAvatar(
+            displayName = profile.displayName,
+            profileImageUrl = profile.profileImageUrl
+        )
+
+        Text(
+            text = profile.displayName,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(start = 12.dp)
+        )
     }
 }
 
