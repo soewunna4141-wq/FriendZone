@@ -5,4 +5,6 @@ import com.fz.friendzone.core.model.Post
 interface NewsLocalDataSource {
 
     fun getPosts(): List<Post>
+
+    fun savePost(post: Post)
 }
