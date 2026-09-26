@@ -2,6 +2,8 @@ package com.fz.friendzone.app
 
 import com.fz.friendzone.data.repository.AccountRepository
 import com.fz.friendzone.data.repository.AccountRepositoryFactory
+import com.fz.friendzone.data.repository.CommentRepository
+import com.fz.friendzone.data.repository.CommentRepositoryFactory
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.NewsRepositoryFactory
 import com.fz.friendzone.data.repository.ProfileRepository
@@ -37,6 +39,10 @@ class FriendZoneDependencies {
 
     val reactionRepository: ReactionRepository by lazy {
         ReactionRepositoryFactory.create()
+    }
+
+    val commentRepository: CommentRepository by lazy {
+        CommentRepositoryFactory.create()
     }
 
     val userRepository: UserRepository by lazy {
