@@ -239,6 +239,48 @@ class NewsViewModelTest {
     }
 
     @Test
+    fun createPost_whenSaveFails_returnsErrorState() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Failed post"
+        )
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return emptyList()
+            }
+
+            override fun savePost(post: Post) {
+                error("Test save error")
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository
+        )
+
+        viewModel.onAction(
+            NewsAction.CreatePost(post)
+        )
+
+        assertEquals(
+            NewsUiState.Error(
+                messageResId = com.fz.friendzone.R.string.news_load_error
+            ),
+            viewModel.uiState.value
+        )
+    }
+
+    @Test
     fun createPost_reloadsPostsInRepositoryOrder() {
         val olderPost = Post(
             id = "post-1",
