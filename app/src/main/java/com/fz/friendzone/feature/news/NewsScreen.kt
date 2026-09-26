@@ -223,4 +223,104 @@ private fun NewsPostCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            if (profile
+            if (profile != null) {
+                NewsAuthorHeader(
+                    profile = profile
+                )
+            }
+
+            NewsPostContent(
+                post = post
+            )
+        }
+    }
+}
+
+@Composable
+private fun NewsAuthorHeader(
+    profile: Profile
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        NewsAuthorAvatar(
+            displayName = profile.displayName,
+            profileImageUrl = profile.profileImageUrl
+        )
+
+        Text(
+            text = profile.displayName,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(start = 12.dp)
+        )
+    }
+}
+
+@Composable
+private fun NewsPostContent(
+    post: Post
+) {
+    Text(
+        text = post.caption,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(top = 8.dp)
+    )
+
+    Text(
+        text = DateFormat.getDateTimeInstance(
+            DateFormat.MEDIUM,
+            DateFormat.SHORT
+        ).format(Date(post.createdAt)),
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.padding(top = 6.dp)
+    )
+
+    if (!post.mediaUrl.isNullOrBlank()) {
+        AsyncImage(
+            model = post.mediaUrl,
+            contentDescription = post.caption,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+                .clip(MaterialTheme.shapes.medium),
+            contentScale = ContentScale.Crop
+        )
+    }
+}
+
+@Composable
+private fun NewsAuthorAvatar(
+    displayName: String,
+    profileImageUrl: String?
+) {
+    val initial = displayName
+        .trim()
+        .firstOrNull()
+        ?.uppercaseChar()
+        ?.toString()
+        ?: "?"
+
+    if (profileImageUrl.isNullOrBlank()) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = initial,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    } else {
+        AsyncImage(
+            model = profileImageUrl,
+            contentDescription = displayName,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
+    }
+}
