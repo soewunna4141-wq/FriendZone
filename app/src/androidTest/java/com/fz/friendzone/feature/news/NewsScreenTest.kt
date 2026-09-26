@@ -148,6 +148,42 @@ class NewsScreenTest {
     }
 
     @Test
+    fun errorState_displaysLoadErrorMessage() {
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return null
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return null
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                error("Test load error")
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "Unable to load posts"
+        ).assertIsEnabled()
+    }
+
+    @Test
     fun createPost_withCurrentProfile_savesPostWithProfileUserId() {
         val profile = Profile(
             userId = "user-1",
