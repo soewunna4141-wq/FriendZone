@@ -39,6 +39,8 @@ import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
+import java.text.DateFormat
+import java.util.Date
 import java.util.UUID
 
 @Composable
@@ -259,6 +261,15 @@ private fun NewsPostContent(
         text = post.caption,
         style = MaterialTheme.typography.bodyLarge,
         modifier = Modifier.padding(top = 8.dp)
+    )
+
+    Text(
+        text = DateFormat.getDateTimeInstance(
+            DateFormat.MEDIUM,
+            DateFormat.SHORT
+        ).format(Date(post.createdAt)),
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.padding(top = 6.dp)
     )
 
     if (!post.mediaUrl.isNullOrBlank()) {
