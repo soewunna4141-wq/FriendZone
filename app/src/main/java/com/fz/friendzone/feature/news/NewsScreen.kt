@@ -223,6 +223,7 @@ private fun NewsPostList(
                 post = postUiModel.post,
                 profile = postUiModel.profile,
                 currentUserId = currentUserId,
+                reactionCount = postUiModel.reactionCount,
                 onLikePost = onLikePost
             )
         }
@@ -234,6 +235,7 @@ private fun NewsPostCard(
     post: Post,
     profile: Profile?,
     currentUserId: String?,
+    reactionCount: Int,
     onLikePost: (postId: String, userId: String) -> Unit
 ) {
     Card(
@@ -273,6 +275,12 @@ private fun NewsPostCard(
                     text = stringResource(R.string.news_reaction_like)
                 )
             }
+
+            Text(
+                text = reactionCount.toString(),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
     }
 }
