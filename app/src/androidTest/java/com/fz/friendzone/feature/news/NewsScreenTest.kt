@@ -3,6 +3,7 @@ package com.fz.friendzone.feature.news
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -10,6 +11,7 @@ import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -322,6 +324,71 @@ class NewsScreenTest {
         composeTestRule.onNodeWithText(
             "Post without profile"
         ).assertIsEnabled()
+    }
+
+    @Test
+    fun posts_renderInNewestToOlderOrder() {
+        val newerPost = Post(
+            id = "post-2",
+            userId = "user-1",
+            caption = "Newer post",
+            createdAt = 2000L
+        )
+
+        val olderPost = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Older post",
+            createdAt = 1000L
+        )
+
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(newerPost, olderPost)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        val newerNode = composeTestRule
+            .onAllNodesWithText("Newer post")
+            .fetchSemanticsNodes()
+            .single()
+
+        val olderNode = composeTestRule
+            .onAllNodesWithText("Older post")
+            .fetchSemanticsNodes()
+            .single()
+
+        assertTrue(
+            newerNode.boundsInRoot.top < olderNode.boundsInRoot.top
+        )
     }
 
     @Test
