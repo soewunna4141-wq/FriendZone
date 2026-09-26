@@ -225,7 +225,7 @@ private fun NewsPostCard(
             }
 
             NewsPostContent(
-                caption = post.caption
+                post = post
             )
         }
     }
@@ -253,13 +253,25 @@ private fun NewsAuthorHeader(
 
 @Composable
 private fun NewsPostContent(
-    caption: String
+    post: Post
 ) {
     Text(
-        text = caption,
+        text = post.caption,
         style = MaterialTheme.typography.bodyLarge,
         modifier = Modifier.padding(top = 8.dp)
     )
+
+    if (!post.mediaUrl.isNullOrBlank()) {
+        AsyncImage(
+            model = post.mediaUrl,
+            contentDescription = post.caption,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+                .clip(MaterialTheme.shapes.medium),
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Composable
