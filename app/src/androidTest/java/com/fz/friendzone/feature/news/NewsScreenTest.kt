@@ -344,4 +344,56 @@ class NewsScreenTest {
             check(createdAt in beforeCreate..afterCreate)
         }
     }
+
+    @Test
+    fun createPost_withWhitespaceAroundCaption_savesTrimmedCaption() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        var savedPost: Post? = null
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return savedPost?.let { listOf(it) } ?: emptyList()
+            }
+
+            override fun savePost(post: Post) {
+                savedPost = post
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "What is on your mind?"
+        ).performTextInput("  Hello FriendZone  ")
+
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).performClick()
+
+        composeTestRule.runOnIdle {
+            check(savedPost?.caption == "Hello FriendZone")
+        }
+    }
 }
