@@ -2,16 +2,19 @@ package com.fz.friendzone.feature.news
 
 import androidx.lifecycle.ViewModel
 import com.fz.friendzone.R
+import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
+import com.fz.friendzone.data.repository.ReactionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class NewsViewModel(
     private val newsRepository: NewsRepository,
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
+    private val reactionRepository: ReactionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NewsUiState>(NewsUiState.Loading)
@@ -25,10 +28,11 @@ class NewsViewModel(
         when (action) {
             NewsAction.Load -> loadPosts()
             is NewsAction.CreatePost -> createPost(action.post)
+            is NewsAction.SaveReaction -> saveReaction(action.reaction)
         }
     }
 
-    private fun createPost(post: com.fz.friendzone.core.model.Post) {
+    private fun createPost(post: Post) {
         runCatching {
             newsRepository.savePost(post)
         }.onSuccess {
@@ -38,6 +42,10 @@ class NewsViewModel(
                 messageResId = R.string.news_load_error
             )
         }
+    }
+
+    private fun saveReaction(reaction: com.fz.friendzone.core.model.Reaction) {
+        reactionRepository.saveReaction(reaction)
     }
 
     private fun loadPosts() {
