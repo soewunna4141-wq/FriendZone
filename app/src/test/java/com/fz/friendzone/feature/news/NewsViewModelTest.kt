@@ -57,6 +57,39 @@ class NewsViewModelTest {
     }
 
     @Test
+    fun loadPosts_whenRepositoryReturnsEmptyList_returnsEmptySuccessState() {
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return emptyList()
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository
+        )
+
+        viewModel.onAction(NewsAction.Load)
+
+        assertEquals(
+            NewsUiState.Success(
+                posts = emptyList()
+            ),
+            viewModel.uiState.value
+        )
+    }
+
+    @Test
     fun loadPosts_mapsPostUserIdToProfile() {
         val post = Post(
             id = "post-1",
