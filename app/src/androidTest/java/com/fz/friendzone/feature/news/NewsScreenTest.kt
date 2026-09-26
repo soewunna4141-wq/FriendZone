@@ -285,6 +285,54 @@ class NewsScreenTest {
     }
 
     @Test
+    fun posts_withProfile_blankDisplayName_displaysFallbackAvatarInitial() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "   ",
+            profileImageUrl = null
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Hello from FriendZone"
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "?"
+        ).assertIsEnabled()
+    }
+
+    @Test
     fun posts_withoutProfile_displayCaption() {
         val post = Post(
             id = "post-1",
