@@ -112,6 +112,42 @@ class NewsScreenTest {
     }
 
     @Test
+    fun emptyPosts_displaysNoPostsMessage() {
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return null
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return null
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return emptyList()
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "No posts yet"
+        ).assertIsEnabled()
+    }
+
+    @Test
     fun createPost_withCurrentProfile_savesPostWithProfileUserId() {
         val profile = Profile(
             userId = "user-1",
