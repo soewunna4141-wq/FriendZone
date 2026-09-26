@@ -774,6 +774,68 @@ class NewsScreenTest {
         }
     }
 
+    @Test
+    fun likePost_withCurrentProfile_savesLikeReaction() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-2",
+            caption = "Hello from FriendZone"
+        )
+
+        val reactionRepository = FakeReactionRepository()
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository,
+                reactionRepository = reactionRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "Like"
+        ).performClick()
+
+        composeTestRule.runOnIdle {
+            val reactions = reactionRepository.getReactions("post-1")
+
+            check(reactions.size == 1)
+
+            val savedReaction = reactions.single()
+
+            check(savedReaction.postId == "post-1")
+            check(savedReaction.userId == "user-1")
+            check(savedReaction.type == "LIKE")
+        }
+    }
+
     private class FakeReactionRepository : ReactionRepository {
 
         private val reactions = mutableListOf<Reaction>()
