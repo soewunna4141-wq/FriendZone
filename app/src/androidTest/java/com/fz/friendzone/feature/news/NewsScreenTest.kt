@@ -9,8 +9,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
+import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
+import com.fz.friendzone.data.repository.ReactionRepository
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -52,7 +54,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -100,7 +103,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -140,7 +144,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -176,7 +181,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -223,7 +229,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -275,7 +282,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -323,7 +331,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -365,7 +374,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -420,7 +430,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -474,7 +485,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -528,7 +540,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -585,7 +598,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -634,7 +648,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -680,7 +695,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -732,7 +748,8 @@ class NewsScreenTest {
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                reactionRepository = FakeReactionRepository()
             )
         }
 
@@ -754,6 +771,21 @@ class NewsScreenTest {
 
         composeTestRule.runOnIdle {
             check(savedPost?.caption == "Second Post")
+        }
+    }
+
+    private class FakeReactionRepository : ReactionRepository {
+
+        private val reactions = mutableListOf<Reaction>()
+
+        override fun getReactions(postId: String): List<Reaction> {
+            return reactions.filter { reaction ->
+                reaction.postId == postId
+            }
+        }
+
+        override fun saveReaction(reaction: Reaction) {
+            reactions.add(reaction)
         }
     }
 }
