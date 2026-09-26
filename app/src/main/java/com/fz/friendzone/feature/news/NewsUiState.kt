@@ -19,5 +19,6 @@ sealed interface NewsUiState {
 
 data class NewsPostUiModel(
     val post: Post,
-    val profile: Profile?
+    val profile: Profile?,
+    val reactionCount: Int = 0
 )
