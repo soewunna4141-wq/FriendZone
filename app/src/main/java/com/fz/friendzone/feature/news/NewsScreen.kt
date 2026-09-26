@@ -37,6 +37,7 @@ import coil.compose.AsyncImage
 import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
+import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReactionRepository
@@ -111,6 +112,19 @@ fun NewsScreen(
 
                 NewsPostList(
                     posts = state.posts,
+                    currentUserId = currentProfile?.userId,
+                    onLikePost = { postId, userId ->
+                        viewModel.onAction(
+                            NewsAction.SaveReaction(
+                                Reaction(
+                                    id = UUID.randomUUID().toString(),
+                                    postId = postId,
+                                    userId = userId,
+                                    type = "LIKE"
+                                )
+                            )
+                        )
+                    },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -176,6 +190,8 @@ private fun NewsCreatePost(
 @Composable
 private fun NewsPostList(
     posts: List<NewsPostUiModel>,
+    currentUserId: String?,
+    onLikePost: (postId: String, userId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (posts.isEmpty()) {
@@ -205,7 +221,9 @@ private fun NewsPostList(
         ) { postUiModel ->
             NewsPostCard(
                 post = postUiModel.post,
-                profile = postUiModel.profile
+                profile = postUiModel.profile,
+                currentUserId = currentUserId,
+                onLikePost = onLikePost
             )
         }
     }
@@ -214,7 +232,9 @@ private fun NewsPostList(
 @Composable
 private fun NewsPostCard(
     post: Post,
-    profile: Profile?
+    profile: Profile?,
+    currentUserId: String?,
+    onLikePost: (postId: String, userId: String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -232,6 +252,27 @@ private fun NewsPostCard(
             NewsPostContent(
                 post = post
             )
+
+            Button(
+                onClick = {
+                    val userId = currentUserId
+
+                    if (!userId.isNullOrBlank()) {
+                        onLikePost(
+                            post.id,
+                            userId
+                        )
+                    }
+                },
+                enabled = !currentUserId.isNullOrBlank(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.news_reaction_like)
+                )
+            }
         }
     }
 }
