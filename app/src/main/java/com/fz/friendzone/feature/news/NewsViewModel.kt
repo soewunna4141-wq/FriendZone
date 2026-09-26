@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
+import com.fz.friendzone.data.repository.CommentRepository
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReactionRepository
@@ -14,7 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 class NewsViewModel(
     private val newsRepository: NewsRepository,
     private val profileRepository: ProfileRepository,
-    private val reactionRepository: ReactionRepository
+    private val reactionRepository: ReactionRepository,
+    private val commentRepository: CommentRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NewsUiState>(NewsUiState.Loading)
@@ -29,6 +31,7 @@ class NewsViewModel(
             NewsAction.Load -> loadPosts()
             is NewsAction.CreatePost -> createPost(action.post)
             is NewsAction.SaveReaction -> saveReaction(action.reaction)
+            is NewsAction.SaveComment -> saveComment(action.comment)
         }
     }
 
@@ -48,6 +51,13 @@ class NewsViewModel(
         reaction: com.fz.friendzone.core.model.Reaction
     ) {
         reactionRepository.saveReaction(reaction)
+        loadPosts()
+    }
+
+    private fun saveComment(
+        comment: com.fz.friendzone.core.model.Comment
+    ) {
+        commentRepository.saveComment(comment)
         loadPosts()
     }
 
