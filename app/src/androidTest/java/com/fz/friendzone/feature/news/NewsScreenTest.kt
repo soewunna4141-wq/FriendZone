@@ -555,6 +555,51 @@ class NewsScreenTest {
     }
 
     @Test
+    fun createPost_withWhitespaceOnlyCaption_disablesPostButton() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return emptyList()
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "What is on your mind?"
+        ).performTextInput("   ")
+
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).assertIsNotEnabled()
+    }
+
+    @Test
     fun createPost_withCurrentProfile_clearsCaptionAfterSave() {
         val profile = Profile(
             userId = "user-1",
