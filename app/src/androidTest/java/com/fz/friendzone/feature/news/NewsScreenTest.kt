@@ -163,4 +163,62 @@ class NewsScreenTest {
             check(savedPost?.caption == "Hello FriendZone")
         }
     }
+
+    @Test
+    fun createPost_withCurrentProfile_setsCreationTimestamp() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        var savedPost: Post? = null
+        val beforeCreate = System.currentTimeMillis()
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return savedPost?.let { listOf(it) } ?: emptyList()
+            }
+
+            override fun savePost(post: Post) {
+                savedPost = post
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "What is on your mind?"
+        ).performTextInput("Timestamp test")
+
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).performClick()
+
+        val afterCreate = System.currentTimeMillis()
+
+        composeTestRule.runOnIdle {
+            val createdAt = savedPost?.createdAt
+
+            check(createdAt != null)
+            check(createdAt in beforeCreate..afterCreate)
+        }
+    }
 }
