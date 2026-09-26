@@ -184,6 +184,57 @@ class NewsScreenTest {
     }
 
     @Test
+    fun posts_withProfile_displayAuthorNameAndCaption() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Hello from FriendZone"
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "Test User"
+        ).assertIsEnabled()
+
+        composeTestRule.onNodeWithText(
+            "Hello from FriendZone"
+        ).assertIsEnabled()
+    }
+
+    @Test
     fun createPost_withCurrentProfile_savesPostWithProfileUserId() {
         val profile = Profile(
             userId = "user-1",
