@@ -39,7 +39,8 @@ fun FriendZoneNavHost(
         composable(NavigationRoutes.NEWS) {
             NewsScreen(
                 repository = application.dependencies.newsRepository,
-                profileRepository = application.dependencies.profileRepository
+                profileRepository = application.dependencies.profileRepository,
+                reactionRepository = application.dependencies.reactionRepository
             )
         }
     }
