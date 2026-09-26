@@ -21,6 +21,7 @@
     <string name="news_load_error">Unable to load posts</string>
     <string name="news_create_post_caption">What is on your mind?</string>
     <string name="news_create_post_button">Post</string>
+    <string name="news_reaction_like">Like</string>
 
     <!-- Account -->
     <string name="account_no_account">No account</string>
