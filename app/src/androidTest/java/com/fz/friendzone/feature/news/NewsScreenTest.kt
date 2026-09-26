@@ -235,6 +235,48 @@ class NewsScreenTest {
     }
 
     @Test
+    fun posts_withoutProfile_displayCaption() {
+        val post = Post(
+            id = "post-1",
+            userId = "missing-user",
+            caption = "Post without profile"
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return null
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return null
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "Post without profile"
+        ).assertIsEnabled()
+    }
+
+    @Test
     fun createPost_withCurrentProfile_savesPostWithProfileUserId() {
         val profile = Profile(
             userId = "user-1",
