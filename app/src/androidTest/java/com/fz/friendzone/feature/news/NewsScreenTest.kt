@@ -235,6 +235,54 @@ class NewsScreenTest {
     }
 
     @Test
+    fun posts_withProfile_withoutImage_displaysAvatarInitial() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User",
+            profileImageUrl = null
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Hello from FriendZone"
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "T"
+        ).assertIsEnabled()
+    }
+
+    @Test
     fun posts_withoutProfile_displayCaption() {
         val post = Post(
             id = "post-1",
