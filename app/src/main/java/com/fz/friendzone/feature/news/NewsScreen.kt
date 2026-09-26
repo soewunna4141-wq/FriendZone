@@ -93,7 +93,8 @@ fun NewsScreen(
                                     Post(
                                         id = UUID.randomUUID().toString(),
                                         userId = userId,
-                                        caption = trimmedCaption
+                                        caption = trimmedCaption,
+                                        createdAt = System.currentTimeMillis()
                                     )
                                 )
                             )
