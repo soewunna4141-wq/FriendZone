@@ -1,6 +1,5 @@
 package com.fz.friendzone.feature.news
 
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -405,6 +404,8 @@ class NewsScreenTest {
             displayName = "Test User"
         )
 
+        var savedPost: Post? = null
+
         val profileRepository = object : ProfileRepository {
             override fun getProfile(): Profile? {
                 return profile
@@ -420,10 +421,11 @@ class NewsScreenTest {
 
         val newsRepository = object : NewsRepository {
             override fun getPosts(): List<Post> {
-                return emptyList()
+                return savedPost?.let { listOf(it) } ?: emptyList()
             }
 
             override fun savePost(post: Post) {
+                savedPost = post
             }
         }
 
@@ -443,7 +445,15 @@ class NewsScreenTest {
         ).performClick()
 
         composeTestRule.onNodeWithText(
-            "Hello FriendZone"
-        ).assertDoesNotExist()
+            "What is on your mind?"
+        ).performTextInput("Second Post")
+
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).performClick()
+
+        composeTestRule.runOnIdle {
+            check(savedPost?.caption == "Second Post")
+        }
     }
 }
