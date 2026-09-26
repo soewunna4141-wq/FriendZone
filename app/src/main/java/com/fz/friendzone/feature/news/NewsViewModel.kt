@@ -44,8 +44,11 @@ class NewsViewModel(
         }
     }
 
-    private fun saveReaction(reaction: com.fz.friendzone.core.model.Reaction) {
+    private fun saveReaction(
+        reaction: com.fz.friendzone.core.model.Reaction
+    ) {
         reactionRepository.saveReaction(reaction)
+        loadPosts()
     }
 
     private fun loadPosts() {
@@ -57,7 +60,10 @@ class NewsViewModel(
             val postUiModels = posts.map { post ->
                 NewsPostUiModel(
                     post = post,
-                    profile = profileRepository.getProfile(post.userId)
+                    profile = profileRepository.getProfile(post.userId),
+                    reactionCount = reactionRepository
+                        .getReactions(post.id)
+                        .size
                 )
             }
 
