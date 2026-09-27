@@ -1,8 +1,11 @@
 package com.fz.friendzone.feature.news
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.onAllNodes
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.fz.friendzone.core.model.Comment
@@ -232,6 +235,74 @@ class NewsScreenTest {
         ).performClick()
 
         composeTestRule.onNodeWithText("1").assertIsDisplayed()
+    }
+
+    @Test
+    fun commentPost_withCurrentProfile_savesComment() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-2",
+            caption = "Hello from FriendZone"
+        )
+
+        val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository,
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository
+            )
+        }
+
+        composeTestRule
+            .onAllNodes(hasSetTextAction())[1]
+            .performTextInput("Nice post")
+
+        composeTestRule.onNodeWithText(
+            "Comment"
+        ).performClick()
+
+        composeTestRule.runOnIdle {
+            val comments = commentRepository.getComments("post-1")
+
+            check(comments.size == 1)
+
+            val savedComment = comments.single()
+
+            check(savedComment.postId == "post-1")
+            check(savedComment.userId == "user-1")
+            check(savedComment.text == "Nice post")
+        }
     }
 
     private class FakeNewsRepository(
