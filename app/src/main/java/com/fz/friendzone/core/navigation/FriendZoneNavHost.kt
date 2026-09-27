@@ -40,7 +40,8 @@ fun FriendZoneNavHost(
             NewsScreen(
                 repository = application.dependencies.newsRepository,
                 profileRepository = application.dependencies.profileRepository,
-                reactionRepository = application.dependencies.reactionRepository
+                reactionRepository = application.dependencies.reactionRepository,
+                commentRepository = application.dependencies.commentRepository
             )
         }
     }
