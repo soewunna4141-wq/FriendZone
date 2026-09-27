@@ -92,4 +92,34 @@ class ProfileRepositoryImplTest {
             repository.getProfile("user-2")
         )
     }
+
+    @Test
+    fun getProfileByUserId_delegatesToLocalDataSource() {
+        val profile = Profile(
+            userId = "user-2",
+            displayName = "Delegated User"
+        )
+
+        val dataSource = object : ProfileLocalDataSource {
+            override fun getProfile(): Profile? {
+                return null
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return if (userId == "user-2") profile else null
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val repository = ProfileRepositoryImpl(
+            localDataSource = dataSource
+        )
+
+        assertEquals(
+            profile,
+            repository.getProfile("user-2")
+        )
+    }
 }
