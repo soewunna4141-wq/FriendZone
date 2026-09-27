@@ -117,6 +117,72 @@ class NewsScreenTest {
     }
 
     @Test
+    fun createPost_withCurrentProfile_savesPostAndShowsPost() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        val savedPosts = mutableListOf<Post>()
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return savedPosts.toList()
+            }
+
+            override fun savePost(post: Post) {
+                savedPosts.add(post)
+            }
+        }
+
+        val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository,
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository
+            )
+        }
+
+        composeTestRule
+            .onAllNodes(hasSetTextAction())[0]
+            .performTextInput("Hello from FriendZone")
+
+        composeTestRule.onNodeWithText(
+            "Post"
+        ).performClick()
+
+        composeTestRule.onNodeWithText(
+            "Hello from FriendZone"
+        ).assertIsDisplayed()
+
+        composeTestRule.runOnIdle {
+            check(savedPosts.size == 1)
+
+            val savedPost = savedPosts.single()
+
+            check(savedPost.userId == "user-1")
+            check(savedPost.caption == "Hello from FriendZone")
+        }
+    }
+
+    @Test
     fun likePost_withCurrentProfile_savesLikeReaction() {
         val profile = Profile(
             userId = "user-1",
