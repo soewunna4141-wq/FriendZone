@@ -304,6 +304,67 @@ class NewsScreenTest {
         }
     }
 
+    @Test
+    fun newsScreen_withComments_showsCommentText() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Test User"
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-2",
+            caption = "Hello from FriendZone"
+        )
+
+        val comment = Comment(
+            id = "comment-1",
+            postId = "post-1",
+            userId = "user-1",
+            text = "Nice post"
+        )
+
+        val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository(
+            comments = listOf(comment)
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return profile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return profile.takeIf { it.userId == userId }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository,
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "Nice post"
+        ).assertIsDisplayed()
+    }
+
     private class FakeNewsRepository(
         private val posts: List<Post> = emptyList()
     ) : NewsRepository {
@@ -347,18 +408,20 @@ class NewsScreenTest {
         }
     }
 
-    private class FakeCommentRepository : CommentRepository {
+    private class FakeCommentRepository(
+        private val comments: List<Comment> = emptyList()
+    ) : CommentRepository {
 
-        private val comments = mutableListOf<Comment>()
+        private val savedComments = comments.toMutableList()
 
         override fun getComments(postId: String): List<Comment> {
-            return comments.filter { comment ->
+            return savedComments.filter { comment ->
                 comment.postId == postId
             }
         }
 
         override fun saveComment(comment: Comment) {
-            comments.add(comment)
+            savedComments.add(comment)
         }
     }
 }
