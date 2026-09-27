@@ -12,9 +12,7 @@ class ProfileRepositoryImpl(
     }
 
     override fun getProfile(userId: String): Profile? {
-        return localDataSource.getProfile()?.takeIf { profile ->
-            profile.userId == userId
-        }
+        return localDataSource.getProfile(userId)
     }
 
     override fun saveProfile(profile: Profile) {
