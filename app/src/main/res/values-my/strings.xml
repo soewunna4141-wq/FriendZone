@@ -15,4 +15,13 @@
     <string name="share_to_platform">%1$s သို့ မျှဝေရန်</string>
     <string name="platform_not_found">%1$s ကို မတွေ့ပါ — App တစ်ခုရွေးပါ</string>
     <string name="tiktok_requires_media">TikTok သို့ မျှဝေရန် ဓာတ်ပုံ သို့မဟုတ် ဗီဒီယို လိုအပ်ပါသည် — မီဒီယာထည့်ပေးပါ။</string>
+
+    <!-- News -->
+    <string name="news_no_posts">တင်ထားသော Post မရှိသေးပါ</string>
+    <string name="news_load_error">Post များကို ဖတ်၍မရပါ</string>
+    <string name="news_create_post_caption">စိတ်ထဲမှာ ဘာရှိလဲ?</string>
+    <string name="news_create_post_button">တင်မည်</string>
+    <string name="news_reaction_like">ကြိုက်သည်</string>
+    <string name="news_comment_hint">မှတ်ချက်ရေးရန်</string>
+    <string name="news_comment_button">မှတ်ချက်ပေးမည်</string>
 </resources>
