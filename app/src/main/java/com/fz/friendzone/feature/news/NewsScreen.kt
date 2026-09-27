@@ -38,6 +38,7 @@ import com.fz.friendzone.R
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
+import com.fz.friendzone.data.repository.CommentRepository
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReactionRepository
@@ -49,13 +50,15 @@ import java.util.UUID
 fun NewsScreen(
     repository: NewsRepository,
     profileRepository: ProfileRepository,
-    reactionRepository: ReactionRepository
+    reactionRepository: ReactionRepository,
+    commentRepository: CommentRepository
 ) {
     val viewModel: NewsViewModel = viewModel(
         factory = NewsViewModelFactory(
             newsRepository = repository,
             profileRepository = profileRepository,
-            reactionRepository = reactionRepository
+            reactionRepository = reactionRepository,
+            commentRepository = commentRepository
         )
     )
 
