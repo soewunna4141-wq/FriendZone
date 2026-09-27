@@ -73,7 +73,9 @@ class NewsViewModel(
                     profile = profileRepository.getProfile(post.userId),
                     reactionCount = reactionRepository
                         .getReactions(post.id)
-                        .size
+                        .size,
+                    comments = commentRepository
+                        .getComments(post.id)
                 )
             }
 
