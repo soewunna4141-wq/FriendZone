@@ -129,6 +129,11 @@ fun NewsScreen(
                             )
                         )
                     },
+                    onSaveComment = { comment ->
+                        viewModel.onAction(
+                            NewsAction.SaveComment(comment)
+                        )
+                    },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -196,6 +201,7 @@ private fun NewsPostList(
     posts: List<NewsPostUiModel>,
     currentUserId: String?,
     onLikePost: (postId: String, userId: String) -> Unit,
+    onSaveComment: (Comment) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (posts.isEmpty()) {
@@ -229,7 +235,8 @@ private fun NewsPostList(
                 currentUserId = currentUserId,
                 reactionCount = postUiModel.reactionCount,
                 comments = postUiModel.comments,
-                onLikePost = onLikePost
+                onLikePost = onLikePost,
+                onSaveComment = onSaveComment
             )
         }
     }
@@ -242,8 +249,13 @@ private fun NewsPostCard(
     currentUserId: String?,
     reactionCount: Int,
     comments: List<Comment>,
-    onLikePost: (postId: String, userId: String) -> Unit
+    onLikePost: (postId: String, userId: String) -> Unit,
+    onSaveComment: (Comment) -> Unit
 ) {
+    var commentText by remember(post.id) {
+        mutableStateOf("")
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium
@@ -291,6 +303,50 @@ private fun NewsPostCard(
             NewsCommentList(
                 comments = comments
             )
+
+            OutlinedTextField(
+                value = commentText,
+                onValueChange = { commentText = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                label = {
+                    Text(
+                        text = stringResource(R.string.news_comment_hint)
+                    )
+                },
+                enabled = !currentUserId.isNullOrBlank(),
+                singleLine = false
+            )
+
+            Button(
+                onClick = {
+                    val userId = currentUserId
+                    val trimmedText = commentText.trim()
+
+                    if (!userId.isNullOrBlank() && trimmedText.isNotEmpty()) {
+                        onSaveComment(
+                            Comment(
+                                id = UUID.randomUUID().toString(),
+                                postId = post.id,
+                                userId = userId,
+                                text = trimmedText
+                            )
+                        )
+
+                        commentText = ""
+                    }
+                },
+                enabled = !currentUserId.isNullOrBlank() &&
+                    commentText.trim().isNotEmpty(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.news_comment_button)
+                )
+            }
         }
     }
 }
