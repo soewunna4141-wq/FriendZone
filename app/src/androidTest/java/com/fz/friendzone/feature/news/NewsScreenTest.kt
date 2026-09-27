@@ -291,6 +291,10 @@ class NewsScreenTest {
             "Comment"
         ).performClick()
 
+        composeTestRule.onNodeWithText(
+            "Nice post"
+        ).assertIsDisplayed()
+
         composeTestRule.runOnIdle {
             val comments = commentRepository.getComments("post-1")
 
