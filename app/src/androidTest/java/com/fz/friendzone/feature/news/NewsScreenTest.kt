@@ -5,9 +5,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.fz.friendzone.core.model.Comment
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
+import com.fz.friendzone.data.repository.CommentRepository
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReactionRepository
@@ -26,12 +28,14 @@ class NewsScreenTest {
         val profileRepository = FakeProfileRepository()
         val newsRepository = FakeNewsRepository()
         val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
 
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
-                reactionRepository = reactionRepository
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository
             )
         }
 
@@ -58,12 +62,14 @@ class NewsScreenTest {
             posts = listOf(post)
         )
         val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
 
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
-                reactionRepository = reactionRepository
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository
             )
         }
 
@@ -92,12 +98,14 @@ class NewsScreenTest {
             posts = listOf(post)
         )
         val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
 
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
-                reactionRepository = reactionRepository
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository
             )
         }
 
@@ -120,6 +128,7 @@ class NewsScreenTest {
         )
 
         val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
 
         val profileRepository = object : ProfileRepository {
             override fun getProfile(): Profile? {
@@ -147,7 +156,8 @@ class NewsScreenTest {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
-                reactionRepository = reactionRepository
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository
             )
         }
 
@@ -182,6 +192,7 @@ class NewsScreenTest {
         )
 
         val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
 
         val profileRepository = object : ProfileRepository {
             override fun getProfile(): Profile? {
@@ -209,7 +220,8 @@ class NewsScreenTest {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
-                reactionRepository = reactionRepository
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository
             )
         }
 
@@ -262,6 +274,21 @@ class NewsScreenTest {
 
         override fun saveReaction(reaction: Reaction) {
             reactions.add(reaction)
+        }
+    }
+
+    private class FakeCommentRepository : CommentRepository {
+
+        private val comments = mutableListOf<Comment>()
+
+        override fun getComments(postId: String): List<Comment> {
+            return comments.filter { comment ->
+                comment.postId == postId
+            }
+        }
+
+        override fun saveComment(comment: Comment) {
+            comments.add(comment)
         }
     }
 }
