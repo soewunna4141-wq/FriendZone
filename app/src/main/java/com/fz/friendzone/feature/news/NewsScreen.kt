@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.fz.friendzone.R
+import com.fz.friendzone.core.model.Comment
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
@@ -227,6 +228,7 @@ private fun NewsPostList(
                 profile = postUiModel.profile,
                 currentUserId = currentUserId,
                 reactionCount = postUiModel.reactionCount,
+                comments = postUiModel.comments,
                 onLikePost = onLikePost
             )
         }
@@ -239,6 +241,7 @@ private fun NewsPostCard(
     profile: Profile?,
     currentUserId: String?,
     reactionCount: Int,
+    comments: List<Comment>,
     onLikePost: (postId: String, userId: String) -> Unit
 ) {
     Card(
@@ -283,6 +286,33 @@ private fun NewsPostCard(
                 text = reactionCount.toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 8.dp)
+            )
+
+            NewsCommentList(
+                comments = comments
+            )
+        }
+    }
+}
+
+@Composable
+private fun NewsCommentList(
+    comments: List<Comment>
+) {
+    if (comments.isEmpty()) {
+        return
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        comments.forEach { comment ->
+            Text(
+                text = comment.text,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
