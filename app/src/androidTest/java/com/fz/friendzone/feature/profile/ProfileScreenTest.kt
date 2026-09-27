@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.fz.friendzone.R
 import com.fz.friendzone.app.FriendZoneDependencies
 import com.fz.friendzone.core.model.Profile
@@ -18,6 +19,9 @@ class ProfileScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private val context =
+        InstrumentationRegistry.getInstrumentation().targetContext
+
     @Test
     fun emptyProfileState_showsCreateProfileButton() {
         val dependencies = FriendZoneDependencies()
@@ -30,7 +34,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_no_profile
                 )
             )
@@ -38,7 +42,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_create_demo
                 )
             )
@@ -57,7 +61,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_create_demo
                 )
             )
@@ -65,7 +69,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_display_name,
                     "Demo User"
                 ),
@@ -75,7 +79,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_bio,
                     "Welcome to FriendZone"
                 ),
@@ -85,7 +89,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_user_id,
                     "demo-user"
                 ),
@@ -95,7 +99,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_reload
                 )
             )
@@ -122,7 +126,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_display_name,
                     "Existing User"
                 ),
@@ -132,7 +136,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_bio,
                     "Existing Bio"
                 ),
@@ -142,7 +146,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_user_id,
                     "existing-user"
                 ),
@@ -152,7 +156,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_reload
                 )
             )
@@ -179,7 +183,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_reload
                 )
             )
@@ -187,7 +191,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_display_name,
                     "Reload User"
                 ),
@@ -197,7 +201,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_bio,
                     "Reload Bio"
                 ),
@@ -207,7 +211,7 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                composeTestRule.activity.getString(
+                context.getString(
                     R.string.profile_user_id,
                     "reload-user"
                 ),
