@@ -30,4 +30,12 @@
     <string name="account_id">Account ID: %1$s</string>
     <string name="account_active">Active: %1$s</string>
     <string name="account_toggle_active">Toggle Active</string>
+
+    <!-- Profile -->
+    <string name="profile_no_profile">No profile</string>
+    <string name="profile_create_demo">Create Demo Profile</string>
+    <string name="profile_display_name">Display Name: %1$s</string>
+    <string name="profile_bio">Bio: %1$s</string>
+    <string name="profile_user_id">User ID: %1$s</string>
+    <string name="profile_reload">Reload Profile</string>
 </resources>
