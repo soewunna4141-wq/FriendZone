@@ -4,11 +4,15 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.fz.friendzone.R
 import com.fz.friendzone.app.FriendZoneDependencies
 import com.fz.friendzone.core.model.Profile
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class ProfileScreenTest {
 
     @get:Rule
@@ -25,11 +29,19 @@ class ProfileScreenTest {
         }
 
         composeTestRule
-            .onNodeWithText("No profile")
+            .onNodeWithText(
+                composeTestRule.activity.getString(
+                    R.string.profile_no_profile
+                )
+            )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Create Demo Profile")
+            .onNodeWithText(
+                composeTestRule.activity.getString(
+                    R.string.profile_create_demo
+                )
+            )
             .assertIsDisplayed()
     }
 
@@ -44,32 +56,49 @@ class ProfileScreenTest {
         }
 
         composeTestRule
-            .onNodeWithText("Create Demo Profile")
+            .onNodeWithText(
+                composeTestRule.activity.getString(
+                    R.string.profile_create_demo
+                )
+            )
             .performClick()
 
         composeTestRule
             .onNodeWithText(
-                "Display Name: Demo User",
+                composeTestRule.activity.getString(
+                    R.string.profile_display_name,
+                    "Demo User"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
 
         composeTestRule
             .onNodeWithText(
-                "Bio: Welcome to FriendZone",
+                composeTestRule.activity.getString(
+                    R.string.profile_bio,
+                    "Welcome to FriendZone"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
 
         composeTestRule
             .onNodeWithText(
-                "User ID: demo-user",
+                composeTestRule.activity.getString(
+                    R.string.profile_user_id,
+                    "demo-user"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Reload Profile")
+            .onNodeWithText(
+                composeTestRule.activity.getString(
+                    R.string.profile_reload
+                )
+            )
             .assertIsDisplayed()
     }
 
@@ -93,27 +122,40 @@ class ProfileScreenTest {
 
         composeTestRule
             .onNodeWithText(
-                "Display Name: Existing User",
+                composeTestRule.activity.getString(
+                    R.string.profile_display_name,
+                    "Existing User"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
 
         composeTestRule
             .onNodeWithText(
-                "Bio: Existing Bio",
+                composeTestRule.activity.getString(
+                    R.string.profile_bio,
+                    "Existing Bio"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
 
         composeTestRule
             .onNodeWithText(
-                "User ID: existing-user",
+                composeTestRule.activity.getString(
+                    R.string.profile_user_id,
+                    "existing-user"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Reload Profile")
+            .onNodeWithText(
+                composeTestRule.activity.getString(
+                    R.string.profile_reload
+                )
+            )
             .assertIsDisplayed()
     }
 
@@ -136,26 +178,39 @@ class ProfileScreenTest {
         }
 
         composeTestRule
-            .onNodeWithText("Reload Profile")
+            .onNodeWithText(
+                composeTestRule.activity.getString(
+                    R.string.profile_reload
+                )
+            )
             .performClick()
 
         composeTestRule
             .onNodeWithText(
-                "Display Name: Reload User",
+                composeTestRule.activity.getString(
+                    R.string.profile_display_name,
+                    "Reload User"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
 
         composeTestRule
             .onNodeWithText(
-                "Bio: Reload Bio",
+                composeTestRule.activity.getString(
+                    R.string.profile_bio,
+                    "Reload Bio"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
 
         composeTestRule
             .onNodeWithText(
-                "User ID: reload-user",
+                composeTestRule.activity.getString(
+                    R.string.profile_user_id,
+                    "reload-user"
+                ),
                 substring = true
             )
             .assertIsDisplayed()
