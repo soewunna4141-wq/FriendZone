@@ -1,9 +1,13 @@
 package com.fz.friendzone.feature.news
 
+import com.fz.friendzone.core.model.Comment
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
+import com.fz.friendzone.core.model.Reaction
+import com.fz.friendzone.data.repository.CommentRepository
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
+import com.fz.friendzone.data.repository.ReactionRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -38,7 +42,9 @@ class NewsViewModelTest {
 
         val viewModel = NewsViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = FakeCommentRepository()
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -76,7 +82,9 @@ class NewsViewModelTest {
 
         val viewModel = NewsViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = FakeCommentRepository()
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -124,7 +132,9 @@ class NewsViewModelTest {
 
         val viewModel = NewsViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = FakeCommentRepository()
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -172,7 +182,9 @@ class NewsViewModelTest {
 
         val viewModel = NewsViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = FakeCommentRepository()
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -204,7 +216,9 @@ class NewsViewModelTest {
 
         val viewModel = NewsViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = FakeCommentRepository()
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -246,7 +260,9 @@ class NewsViewModelTest {
 
         val viewModel = NewsViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = FakeCommentRepository()
         )
 
         viewModel.onAction(
@@ -298,7 +314,9 @@ class NewsViewModelTest {
 
         val viewModel = NewsViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = FakeCommentRepository()
         )
 
         viewModel.onAction(
@@ -356,7 +374,9 @@ class NewsViewModelTest {
 
         val viewModel = NewsViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = FakeCommentRepository()
         )
 
         viewModel.onAction(
@@ -382,5 +402,25 @@ class NewsViewModelTest {
             ),
             state.posts
         )
+    }
+
+    private class FakeReactionRepository : ReactionRepository {
+
+        override fun getReactions(postId: String): List<Reaction> {
+            return emptyList()
+        }
+
+        override fun saveReaction(reaction: Reaction) {
+        }
+    }
+
+    private class FakeCommentRepository : CommentRepository {
+
+        override fun getComments(postId: String): List<Comment> {
+            return emptyList()
+        }
+
+        override fun saveComment(comment: Comment) {
+        }
     }
 }
