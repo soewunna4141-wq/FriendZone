@@ -197,6 +197,103 @@ class NewsViewModelTest {
     }
 
     @Test
+    fun loadPosts_mapsReactionCountAndComments() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
+
+        val reactions = listOf(
+            Reaction(
+                id = "reaction-1",
+                postId = "post-1",
+                userId = "user-1"
+            ),
+            Reaction(
+                id = "reaction-2",
+                postId = "post-1",
+                userId = "user-2"
+            )
+        )
+
+        val comments = listOf(
+            Comment(
+                id = "comment-1",
+                postId = "post-1",
+                userId = "user-2",
+                text = "Nice post"
+            ),
+            Comment(
+                id = "comment-2",
+                postId = "post-1",
+                userId = "user-3",
+                text = "Great post"
+            )
+        )
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val reactionRepository = object : ReactionRepository {
+            override fun getReactions(postId: String): List<Reaction> {
+                return reactions.filter { reaction ->
+                    reaction.postId == postId
+                }
+            }
+
+            override fun saveReaction(reaction: Reaction) {
+            }
+        }
+
+        val commentRepository = object : CommentRepository {
+            override fun getComments(postId: String): List<Comment> {
+                return comments.filter { comment ->
+                    comment.postId == postId
+                }
+            }
+
+            override fun saveComment(comment: Comment) {
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository,
+            reactionRepository = reactionRepository,
+            commentRepository = commentRepository
+        )
+
+        viewModel.onAction(NewsAction.Load)
+
+        val state = viewModel.uiState.value as NewsUiState.Success
+        val postUiModel = state.posts.single()
+
+        assertEquals(
+            2,
+            postUiModel.reactionCount
+        )
+
+        assertEquals(
+            comments,
+            postUiModel.comments
+        )
+    }
+
+    @Test
     fun loadPosts_whenRepositoryFails_returnsErrorState() {
         val newsRepository = object : NewsRepository {
             override fun getPosts(): List<Post> {
