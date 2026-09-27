@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.res.stringResource
+import com.fz.friendzone.R
 import com.fz.friendzone.app.FriendZoneDependencies
 import com.fz.friendzone.core.model.Profile
 
@@ -22,7 +24,9 @@ fun ProfileScreen(
     val profile = uiState.profile
 
     if (profile == null) {
-        Text(text = "No profile")
+        Text(
+            text = stringResource(R.string.profile_no_profile)
+        )
 
         Button(
             onClick = {
@@ -37,13 +41,24 @@ fun ProfileScreen(
                 )
             }
         ) {
-            Text(text = "Create Demo Profile")
+            Text(
+                text = stringResource(R.string.profile_create_demo)
+            )
         }
     } else {
         Text(
-            text = "Display Name: ${profile.displayName}\n" +
-                "Bio: ${profile.bio ?: ""}\n" +
-                "User ID: ${profile.userId}"
+            text = stringResource(
+                R.string.profile_display_name,
+                profile.displayName
+            ) + "\n" +
+                stringResource(
+                    R.string.profile_bio,
+                    profile.bio ?: ""
+                ) + "\n" +
+                stringResource(
+                    R.string.profile_user_id,
+                    profile.userId
+                )
         )
 
         Button(
@@ -51,7 +66,9 @@ fun ProfileScreen(
                 viewModel.onAction(ProfileAction.Load)
             }
         ) {
-            Text(text = "Reload Profile")
+            Text(
+                text = stringResource(R.string.profile_reload)
+            )
         }
     }
 }
