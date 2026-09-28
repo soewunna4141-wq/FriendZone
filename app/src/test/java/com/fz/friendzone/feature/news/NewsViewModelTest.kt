@@ -501,6 +501,139 @@ class NewsViewModelTest {
         )
     }
 
+    @Test
+    fun saveReaction_savesReactionAndReloadsPosts() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
+
+        val reaction = Reaction(
+            id = "reaction-1",
+            postId = "post-1",
+            userId = "user-2"
+        )
+
+        val savedReactions = mutableListOf<Reaction>()
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val reactionRepository = object : ReactionRepository {
+            override fun getReactions(postId: String): List<Reaction> {
+                return savedReactions.filter { it.postId == postId }
+            }
+
+            override fun saveReaction(reaction: Reaction) {
+                savedReactions.add(reaction)
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository,
+            reactionRepository = reactionRepository,
+            commentRepository = FakeCommentRepository()
+        )
+
+        viewModel.onAction(
+            NewsAction.SaveReaction(reaction)
+        )
+
+        assertEquals(
+            listOf(reaction),
+            savedReactions
+        )
+
+        val state = viewModel.uiState.value as NewsUiState.Success
+
+        assertEquals(
+            1,
+            state.posts.single().reactionCount
+        )
+    }
+
+    @Test
+    fun saveComment_savesCommentAndReloadsPosts() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
+
+        val comment = Comment(
+            id = "comment-1",
+            postId = "post-1",
+            userId = "user-2",
+            text = "Nice post"
+        )
+
+        val savedComments = mutableListOf<Comment>()
+
+        val newsRepository = object : NewsRepository {
+            override fun getPosts(): List<Post> {
+                return listOf(post)
+            }
+
+            override fun savePost(post: Post) {
+            }
+        }
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile() = null
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val commentRepository = object : CommentRepository {
+            override fun getComments(postId: String): List<Comment> {
+                return savedComments.filter { it.postId == postId }
+            }
+
+            override fun saveComment(comment: Comment) {
+                savedComments.add(comment)
+            }
+        }
+
+        val viewModel = NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository,
+            reactionRepository = FakeReactionRepository(),
+            commentRepository = commentRepository
+        )
+
+        viewModel.onAction(
+            NewsAction.SaveComment(comment)
+        )
+
+        assertEquals(
+            listOf(comment),
+            savedComments
+        )
+
+        val state = viewModel.uiState.value as NewsUiState.Success
+
+        assertEquals(
+            listOf(comment),
+            state.posts.single().comments
+        )
+    }
+
     private class FakeReactionRepository : ReactionRepository {
 
         override fun getReactions(postId: String): List<Reaction> {
