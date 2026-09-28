@@ -12,6 +12,15 @@ class ReactionRepositoryImpl(
     }
 
     override fun saveReaction(reaction: Reaction) {
-        localDataSource.saveReaction(reaction)
+        val alreadyExists = localDataSource
+            .getReactions(reaction.postId)
+            .any { existing ->
+                existing.userId == reaction.userId &&
+                    existing.type == reaction.type
+            }
+
+        if (!alreadyExists) {
+            localDataSource.saveReaction(reaction)
+        }
     }
 }
