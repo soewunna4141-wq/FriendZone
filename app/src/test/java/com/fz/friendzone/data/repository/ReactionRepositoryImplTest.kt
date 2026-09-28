@@ -41,6 +41,32 @@ class ReactionRepositoryImplTest {
         assertEquals(listOf(reaction), localDataSource.savedReactions)
     }
 
+    @Test
+    fun saveReaction_doesNotSaveDuplicateReactionFromSameUser() {
+        val existingReaction = Reaction(
+            id = "reaction-1",
+            postId = "post-1",
+            userId = "user-1",
+            type = "LIKE"
+        )
+
+        val duplicateReaction = Reaction(
+            id = "reaction-2",
+            postId = "post-1",
+            userId = "user-1",
+            type = "LIKE"
+        )
+
+        val localDataSource = FakeReactionLocalDataSource(
+            reactions = listOf(existingReaction)
+        )
+        val repository = ReactionRepositoryImpl(localDataSource)
+
+        repository.saveReaction(duplicateReaction)
+
+        assertEquals(emptyList<Reaction>(), localDataSource.savedReactions)
+    }
+
     private class FakeReactionLocalDataSource(
         private val reactions: List<Reaction> = emptyList()
     ) : ReactionLocalDataSource {
