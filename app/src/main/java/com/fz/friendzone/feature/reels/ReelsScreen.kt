@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fz.friendzone.R
 import com.fz.friendzone.data.repository.ReelsRepository
 
 @Composable
@@ -40,11 +41,18 @@ fun ReelsScreen(
     ) {
         when (val state = uiState) {
             ReelsUiState.Loading -> {
-                Text(text = "Loading...")
+                Text(
+                    text = stringResource(R.string.reels_loading)
+                )
             }
 
             is ReelsUiState.Success -> {
-                Text(text = "Reels: ${state.reels.size}")
+                Text(
+                    text = stringResource(
+                        R.string.reels_count,
+                        state.reels.size
+                    )
+                )
             }
 
             is ReelsUiState.Error -> {
