@@ -6,6 +6,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fz.friendzone.FriendZoneApplication
 import com.fz.friendzone.feature.account.AccountScreen
+import com.fz.friendzone.feature.follow.FollowScreen
+import com.fz.friendzone.feature.friend.FriendScreen
 import com.fz.friendzone.feature.news.NewsScreen
 import com.fz.friendzone.feature.profile.ProfileScreen
 import com.fz.friendzone.feature.share.ComposerScreen
@@ -42,6 +44,18 @@ fun FriendZoneNavHost(
                 profileRepository = application.dependencies.profileRepository,
                 reactionRepository = application.dependencies.reactionRepository,
                 commentRepository = application.dependencies.commentRepository
+            )
+        }
+
+        composable(NavigationRoutes.FRIEND) {
+            FriendScreen(
+                viewModelFactory = application.dependencies.friendViewModelFactory
+            )
+        }
+
+        composable(NavigationRoutes.FOLLOW) {
+            FollowScreen(
+                viewModelFactory = application.dependencies.followViewModelFactory
             )
         }
     }
