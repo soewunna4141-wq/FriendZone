@@ -38,4 +38,8 @@
     <string name="profile_bio">Bio: %1$s</string>
     <string name="profile_user_id">User ID: %1$s</string>
     <string name="profile_reload">Reload Profile</string>
+
+    <!-- Friend -->
+    <string name="friend_screen_title">Friends</string>
+    <string name="friend_relationship_format">%1$s ↔ %2$s</string>
 </resources>
