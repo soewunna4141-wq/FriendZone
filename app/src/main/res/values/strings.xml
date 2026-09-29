@@ -1,45 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- App -->
     <string name="app_name">FriendZone</string>
 
-    <!-- Composer -->
-    <string name="composer_title">FriendZone</string>
-    <string name="composer_hint">What is on your mind?</string>
-    <string name="add_media">Add photo / video</string>
-    <string name="change_media">Change media</string>
-    <string name="media_attached">Media attached</string>
-    <string name="post_to">Post to:</string>
-    <string name="post">Post</string>
-    <string name="share_info">Tapping Post opens each platform share screen so you make the final tap on every app yourself.</string>
-
     <!-- Share -->
-    <string name="share_to_platform">Share to %1$s</string>
-    <string name="platform_not_found">%1$s not found - choose an app</string>
-    <string name="tiktok_requires_media">TikTok requires a photo or video - add media before sharing to TikTok.</string>
+    <string name="share_caption_hint">Write a caption</string>
+    <string name="share_select_media">Select photo or video</string>
+    <string name="share_facebook">Facebook</string>
+    <string name="share_tiktok">TikTok</string>
+    <string name="share_telegram">Telegram</string>
+    <string name="share_post">Post</string>
 
     <!-- News -->
-    <string name="news_no_posts">No posts yet</string>
-    <string name="news_load_error">Unable to load posts</string>
-    <string name="news_create_post_caption">What is on your mind?</string>
-    <string name="news_create_post_button">Post</string>
-    <string name="news_reaction_like">Like</string>
-    <string name="news_comment_hint">Write a comment</string>
-    <string name="news_comment_button">Comment</string>
+    <string name="news_screen_title">News Paper</string>
+    <string name="news_empty">No posts yet</string>
 
     <!-- Account -->
-    <string name="account_no_account">No account</string>
-    <string name="account_id">Account ID: %1$s</string>
-    <string name="account_active">Active: %1$s</string>
-    <string name="account_toggle_active">Toggle Active</string>
+    <string name="account_screen_title">Account</string>
 
     <!-- Profile -->
-    <string name="profile_no_profile">No profile</string>
-    <string name="profile_create_demo">Create Demo Profile</string>
-    <string name="profile_display_name">Display Name: %1$s</string>
-    <string name="profile_bio">Bio: %1$s</string>
-    <string name="profile_user_id">User ID: %1$s</string>
-    <string name="profile_reload">Reload Profile</string>
+    <string name="profile_screen_title">Profile</string>
 
     <!-- Friend -->
     <string name="friend_screen_title">Friends</string>
     <string name="friend_relationship_format">%1$s ↔ %2$s</string>
+
+    <!-- Reels -->
+    <string name="reels_loading">Loading...</string>
+    <string name="reels_count">Reels: %1$d</string>
+
 </resources>
