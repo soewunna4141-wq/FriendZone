@@ -49,7 +49,7 @@ fun FriendZoneNavHost(
 
         composable(NavigationRoutes.FRIEND) {
             FriendScreen(
-                viewModelFactory = application.dependencies.friendViewModelFactory
+                dependencies = application.dependencies
             )
         }
 
