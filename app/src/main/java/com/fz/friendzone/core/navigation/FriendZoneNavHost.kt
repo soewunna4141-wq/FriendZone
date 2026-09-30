@@ -10,6 +10,7 @@ import com.fz.friendzone.feature.follow.FollowScreen
 import com.fz.friendzone.feature.friend.FriendScreen
 import com.fz.friendzone.feature.news.NewsScreen
 import com.fz.friendzone.feature.profile.ProfileScreen
+import com.fz.friendzone.feature.reels.ReelsScreen
 import com.fz.friendzone.feature.share.ComposerScreen
 
 @Composable
@@ -56,6 +57,12 @@ fun FriendZoneNavHost(
         composable(NavigationRoutes.FOLLOW) {
             FollowScreen(
                 viewModelFactory = application.dependencies.followViewModelFactory
+            )
+        }
+
+        composable(NavigationRoutes.REELS) {
+            ReelsScreen(
+                repository = application.dependencies.reelsRepository
             )
         }
     }
