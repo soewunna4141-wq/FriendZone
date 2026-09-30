@@ -13,4 +13,6 @@ object NavigationRoutes {
     const val FRIEND = "friend"
 
     const val FOLLOW = "follow"
+
+    const val REELS = "reels"
 }
