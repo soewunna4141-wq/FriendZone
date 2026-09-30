@@ -1,5 +1,6 @@
 package com.fz.friendzone.app
 
+import com.fz.friendzone.data.local.InMemoryReelsLocalDataSource
 import com.fz.friendzone.data.repository.AccountRepository
 import com.fz.friendzone.data.repository.AccountRepositoryFactory
 import com.fz.friendzone.data.repository.CommentRepository
@@ -14,6 +15,8 @@ import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ProfileRepositoryFactory
 import com.fz.friendzone.data.repository.ReactionRepository
 import com.fz.friendzone.data.repository.ReactionRepositoryFactory
+import com.fz.friendzone.data.repository.ReelsRepository
+import com.fz.friendzone.data.repository.ReelsRepositoryImpl
 import com.fz.friendzone.data.repository.UserRepository
 import com.fz.friendzone.data.repository.UserRepositoryFactory
 import com.fz.friendzone.feature.account.AccountViewModelFactory
@@ -49,6 +52,12 @@ class FriendZoneDependencies {
 
     val commentRepository: CommentRepository by lazy {
         CommentRepositoryFactory.create()
+    }
+
+    val reelsRepository: ReelsRepository by lazy {
+        ReelsRepositoryImpl(
+            InMemoryReelsLocalDataSource()
+        )
     }
 
     val userRepository: UserRepository by lazy {
