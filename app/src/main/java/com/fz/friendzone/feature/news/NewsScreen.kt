@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -78,7 +79,9 @@ fun NewsScreen(
     when (val state = uiState) {
         NewsUiState.Loading -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -87,7 +90,9 @@ fun NewsScreen(
 
         is NewsUiState.Success -> {
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding()
             ) {
                 NewsCreatePost(
                     caption = caption,
@@ -141,7 +146,9 @@ fun NewsScreen(
 
         is NewsUiState.Error -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
