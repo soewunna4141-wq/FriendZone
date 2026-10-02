@@ -24,6 +24,7 @@ import com.fz.friendzone.data.repository.UserRepositoryFactory
 import com.fz.friendzone.feature.account.AccountViewModelFactory
 import com.fz.friendzone.feature.follow.FollowViewModelFactory
 import com.fz.friendzone.feature.friend.FriendViewModelFactory
+import com.fz.friendzone.feature.login.LoginViewModelFactory
 import com.fz.friendzone.feature.profile.ProfileViewModelFactory
 
 class FriendZoneDependencies {
@@ -38,6 +39,10 @@ class FriendZoneDependencies {
 
     val authenticationRepository: AuthenticationRepository by lazy {
         AuthenticationRepositoryFactory.create()
+    }
+
+    val loginViewModelFactory: LoginViewModelFactory by lazy {
+        LoginViewModelFactory(authenticationRepository)
     }
 
     val profileRepository: ProfileRepository by lazy {
