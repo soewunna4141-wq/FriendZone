@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fz.friendzone.data.repository.AuthenticationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +37,9 @@ sealed interface LoginAction {
     data object SignUp : LoginAction
 }
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val authenticationRepository: AuthenticationRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
 
@@ -59,7 +62,7 @@ class LoginViewModel : ViewModel() {
             LoginAction.Login,
             LoginAction.Biometric,
             LoginAction.SignUp -> {
-                // Authentication and navigation are intentionally outside #402.
+                authenticationRepository.getAuthenticationState()
             }
         }
     }
