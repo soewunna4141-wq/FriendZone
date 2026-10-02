@@ -1,5 +1,6 @@
 package com.fz.friendzone.data.repository
 
+import com.fz.friendzone.data.local.AuthenticationLocalDataSource
 import com.fz.friendzone.feature.auth.AuthenticationState
 
 /**
@@ -8,26 +9,31 @@ import com.fz.friendzone.feature.auth.AuthenticationState
  * Real authentication providers, OTP delivery, and session persistence
  * will be connected in later phases.
  */
-class AuthenticationRepositoryImpl : AuthenticationRepository {
-
-    private var authenticationState: AuthenticationState =
-        AuthenticationState.Unauthenticated
+class AuthenticationRepositoryImpl(
+    private val localDataSource: AuthenticationLocalDataSource
+) : AuthenticationRepository {
 
     override fun getAuthenticationState(): AuthenticationState {
-        return authenticationState
+        return localDataSource.getAuthenticationState()
     }
 
     override fun requestOtp() {
-        authenticationState = AuthenticationState.AwaitingOtp
+        localDataSource.saveAuthenticationState(
+            AuthenticationState.AwaitingOtp
+        )
     }
 
     override fun signIn(accountId: String) {
-        authenticationState = AuthenticationState.Authenticated(
-            accountId = accountId
+        localDataSource.saveAuthenticationState(
+            AuthenticationState.Authenticated(
+                accountId = accountId
+            )
         )
     }
 
     override fun signOut() {
-        authenticationState = AuthenticationState.Unauthenticated
+        localDataSource.saveAuthenticationState(
+            AuthenticationState.Unauthenticated
+        )
     }
 }
