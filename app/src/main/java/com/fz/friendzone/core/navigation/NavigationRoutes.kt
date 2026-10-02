@@ -4,6 +4,8 @@ object NavigationRoutes {
 
     const val LOGIN = "login"
 
+    const val CHOICE = "choice"
+
     const val COMPOSER = "composer"
 
     const val ACCOUNT = "account"
