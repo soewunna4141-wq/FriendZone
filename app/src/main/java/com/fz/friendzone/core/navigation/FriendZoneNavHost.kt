@@ -12,6 +12,7 @@ import com.fz.friendzone.feature.news.NewsScreen
 import com.fz.friendzone.feature.profile.ProfileScreen
 import com.fz.friendzone.feature.reels.ReelsScreen
 import com.fz.friendzone.feature.share.ComposerScreen
+import com.fz.friendzone.feature.login.LoginScreen
 
 @Composable
 fun FriendZoneNavHost(
@@ -21,8 +22,12 @@ fun FriendZoneNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = NavigationRoutes.COMPOSER
+        startDestination = NavigationRoutes.LOGIN
     ) {
+        composable(NavigationRoutes.LOGIN) {
+            LoginScreen()
+        }
+
         composable(NavigationRoutes.COMPOSER) {
             ComposerScreen()
         }
