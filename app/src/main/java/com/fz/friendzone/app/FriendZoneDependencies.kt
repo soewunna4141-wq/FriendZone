@@ -3,6 +3,8 @@ package com.fz.friendzone.app
 import com.fz.friendzone.data.local.InMemoryReelsLocalDataSource
 import com.fz.friendzone.data.repository.AccountRepository
 import com.fz.friendzone.data.repository.AccountRepositoryFactory
+import com.fz.friendzone.data.repository.AuthenticationRepository
+import com.fz.friendzone.data.repository.AuthenticationRepositoryFactory
 import com.fz.friendzone.data.repository.CommentRepository
 import com.fz.friendzone.data.repository.CommentRepositoryFactory
 import com.fz.friendzone.data.repository.FriendRepository
@@ -32,6 +34,10 @@ class FriendZoneDependencies {
 
     val accountViewModelFactory: AccountViewModelFactory by lazy {
         AccountViewModelFactory(accountRepository)
+    }
+
+    val authenticationRepository: AuthenticationRepository by lazy {
+        AuthenticationRepositoryFactory.create()
     }
 
     val profileRepository: ProfileRepository by lazy {
