@@ -2,6 +2,8 @@ package com.fz.friendzone.core.navigation
 
 object NavigationRoutes {
 
+    const val LOGIN = "login"
+
     const val COMPOSER = "composer"
 
     const val ACCOUNT = "account"
