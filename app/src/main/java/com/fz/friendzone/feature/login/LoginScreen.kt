@@ -70,11 +70,15 @@ class LoginViewModel(
 
 @Composable
 fun LoginScreen(
+    viewModelFactory: LoginViewModelFactory,
     onLogin: () -> Unit = {},
     onBiometric: () -> Unit = {},
-    onSignUp: () -> Unit = {},
-    viewModel: LoginViewModel = viewModel()
+    onSignUp: () -> Unit = {}
 ) {
+    val viewModel: LoginViewModel = viewModel(
+        factory = viewModelFactory
+    )
+
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
