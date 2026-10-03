@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fz.friendzone.FriendZoneApplication
 import com.fz.friendzone.feature.account.AccountScreen
+import com.fz.friendzone.feature.choice.ChoiceScreen
 import com.fz.friendzone.feature.follow.FollowScreen
 import com.fz.friendzone.feature.friend.FriendScreen
 import com.fz.friendzone.feature.login.LoginScreen
@@ -28,6 +29,10 @@ fun FriendZoneNavHost(
             LoginScreen(
                 viewModelFactory = application.dependencies.loginViewModelFactory
             )
+        }
+
+        composable(NavigationRoutes.CHOICE) {
+            ChoiceScreen()
         }
 
         composable(NavigationRoutes.COMPOSER) {
