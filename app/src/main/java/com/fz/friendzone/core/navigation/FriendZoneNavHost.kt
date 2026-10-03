@@ -6,6 +6,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fz.friendzone.FriendZoneApplication
 import com.fz.friendzone.feature.account.AccountScreen
+import com.fz.friendzone.feature.accountsetup.AccountSetupScreen
+import com.fz.friendzone.feature.accountsetup.AccountSetupViewModelFactory
 import com.fz.friendzone.feature.choice.ChoiceScreen
 import com.fz.friendzone.feature.follow.FollowScreen
 import com.fz.friendzone.feature.friend.FriendScreen
@@ -30,6 +32,11 @@ fun FriendZoneNavHost(
                 viewModelFactory = application.dependencies.loginViewModelFactory,
                 onLogin = {
                     navController.navigate(NavigationRoutes.CHOICE)
+                },
+                onSignUp = {
+                    navController.navigate(
+                        NavigationRoutes.ACCOUNT_SETUP
+                    )
                 }
             )
         }
@@ -41,6 +48,23 @@ fun FriendZoneNavHost(
                 },
                 onReelsSelected = {
                     navController.navigate(NavigationRoutes.REELS)
+                }
+            )
+        }
+
+        composable(NavigationRoutes.ACCOUNT_SETUP) {
+            AccountSetupScreen(
+                viewModel = AccountSetupViewModelFactory().create(
+                    com.fz.friendzone.feature.accountsetup.AccountSetupViewModel::class.java
+                ),
+                onSetupComplete = {
+                    navController.popBackStack(
+                        NavigationRoutes.LOGIN,
+                        inclusive = false
+                    )
+                },
+                onCancel = {
+                    navController.popBackStack()
                 }
             )
         }
