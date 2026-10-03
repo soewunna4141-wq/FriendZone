@@ -62,12 +62,30 @@ fun FriendZoneNavHost(
         }
 
         composable(NavigationRoutes.NEWS) {
-            NewsScreen(
-                repository = application.dependencies.newsRepository,
-                profileRepository = application.dependencies.profileRepository,
-                reactionRepository = application.dependencies.reactionRepository,
-                commentRepository = application.dependencies.commentRepository
-            )
+            PrimaryExperienceShell(
+                onLogoClick = {
+                    navController.navigate(NavigationRoutes.CHOICE)
+                },
+                onProfileClick = {
+                    navController.navigate(NavigationRoutes.PROFILE)
+                },
+                onFriendClick = {
+                    navController.navigate(NavigationRoutes.FRIEND)
+                },
+                onFollowClick = {
+                    navController.navigate(NavigationRoutes.FOLLOW)
+                },
+                onComposerClick = {
+                    navController.navigate(NavigationRoutes.COMPOSER)
+                }
+            ) {
+                NewsScreen(
+                    repository = application.dependencies.newsRepository,
+                    profileRepository = application.dependencies.profileRepository,
+                    reactionRepository = application.dependencies.reactionRepository,
+                    commentRepository = application.dependencies.commentRepository
+                )
+            }
         }
 
         composable(NavigationRoutes.FRIEND) {
@@ -83,9 +101,27 @@ fun FriendZoneNavHost(
         }
 
         composable(NavigationRoutes.REELS) {
-            ReelsScreen(
-                repository = application.dependencies.reelsRepository
-            )
+            PrimaryExperienceShell(
+                onLogoClick = {
+                    navController.navigate(NavigationRoutes.CHOICE)
+                },
+                onProfileClick = {
+                    navController.navigate(NavigationRoutes.PROFILE)
+                },
+                onFriendClick = {
+                    navController.navigate(NavigationRoutes.FRIEND)
+                },
+                onFollowClick = {
+                    navController.navigate(NavigationRoutes.FOLLOW)
+                },
+                onComposerClick = {
+                    navController.navigate(NavigationRoutes.COMPOSER)
+                }
+            ) {
+                ReelsScreen(
+                    repository = application.dependencies.reelsRepository
+                )
+            }
         }
     }
 }
