@@ -27,12 +27,22 @@ fun FriendZoneNavHost(
     ) {
         composable(NavigationRoutes.LOGIN) {
             LoginScreen(
-                viewModelFactory = application.dependencies.loginViewModelFactory
+                viewModelFactory = application.dependencies.loginViewModelFactory,
+                onLogin = {
+                    navController.navigate(NavigationRoutes.CHOICE)
+                }
             )
         }
 
         composable(NavigationRoutes.CHOICE) {
-            ChoiceScreen()
+            ChoiceScreen(
+                onNewsSelected = {
+                    navController.navigate(NavigationRoutes.NEWS)
+                },
+                onReelsSelected = {
+                    navController.navigate(NavigationRoutes.REELS)
+                }
+            )
         }
 
         composable(NavigationRoutes.COMPOSER) {
