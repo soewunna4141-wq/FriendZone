@@ -6,6 +6,8 @@ import com.fz.friendzone.app.FriendZoneDependencies
 class FriendZoneApplication : Application() {
 
     val dependencies: FriendZoneDependencies by lazy {
-        FriendZoneDependencies()
+        FriendZoneDependencies(
+            context = applicationContext
+        )
     }
 }
