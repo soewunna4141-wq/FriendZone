@@ -2,6 +2,7 @@ package com.fz.friendzone.core.media
 
 import android.net.Uri
 import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 
 class AndroidMediaPickerLauncher(
@@ -30,14 +31,18 @@ class AndroidMediaPickerLauncher(
     override fun pickImage(onResult: (Uri?) -> Unit) {
         imageCallback = onResult
         imagePicker.launch(
-            ActivityResultContracts.PickVisualMedia.ImageOnly
+            PickVisualMediaRequest(
+                ActivityResultContracts.PickVisualMedia.ImageOnly
+            )
         )
     }
 
     override fun pickVideo(onResult: (Uri?) -> Unit) {
         videoCallback = onResult
         videoPicker.launch(
-            ActivityResultContracts.PickVisualMedia.VideoOnly
+            PickVisualMediaRequest(
+                ActivityResultContracts.PickVisualMedia.VideoOnly
+            )
         )
     }
 }
