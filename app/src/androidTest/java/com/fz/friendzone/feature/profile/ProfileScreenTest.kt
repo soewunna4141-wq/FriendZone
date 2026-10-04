@@ -24,7 +24,10 @@ class ProfileScreenTest {
 
     @Test
     fun emptyProfileState_showsCreateProfileButton() {
-        val dependencies = FriendZoneDependencies()
+        val dependencies =
+            FriendZoneDependencies(
+                context = context
+            )
 
         composeTestRule.setContent {
             ProfileScreen(
@@ -51,7 +54,10 @@ class ProfileScreenTest {
 
     @Test
     fun createDemoProfile_showsProfileInformation() {
-        val dependencies = FriendZoneDependencies()
+        val dependencies =
+            FriendZoneDependencies(
+                context = context
+            )
 
         composeTestRule.setContent {
             ProfileScreen(
@@ -108,7 +114,10 @@ class ProfileScreenTest {
 
     @Test
     fun existingProfile_showsProfileInformation() {
-        val dependencies = FriendZoneDependencies()
+        val dependencies =
+            FriendZoneDependencies(
+                context = context
+            )
 
         val existingProfile = Profile(
             userId = "existing-user",
@@ -165,7 +174,10 @@ class ProfileScreenTest {
 
     @Test
     fun reloadProfile_keepsProfileInformationDisplayed() {
-        val dependencies = FriendZoneDependencies()
+        val dependencies =
+            FriendZoneDependencies(
+                context = context
+            )
 
         val existingProfile = Profile(
             userId = "reload-user",
