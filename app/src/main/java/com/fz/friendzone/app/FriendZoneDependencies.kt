@@ -1,5 +1,10 @@
 package com.fz.friendzone.app
 
+import android.content.Context
+import androidx.room.Room
+import com.fz.friendzone.core.media.FriendZoneDatabase
+import com.fz.friendzone.core.media.PersistentMediaMetadataStore
+import com.fz.friendzone.core.media.RoomPersistentMediaMetadataStore
 import com.fz.friendzone.data.local.InMemoryReelsLocalDataSource
 import com.fz.friendzone.data.repository.AccountRepository
 import com.fz.friendzone.data.repository.AccountRepositoryFactory
@@ -27,7 +32,23 @@ import com.fz.friendzone.feature.friend.FriendViewModelFactory
 import com.fz.friendzone.feature.login.LoginViewModelFactory
 import com.fz.friendzone.feature.profile.ProfileViewModelFactory
 
-class FriendZoneDependencies {
+class FriendZoneDependencies(
+    private val context: Context
+) {
+
+    val database: FriendZoneDatabase by lazy {
+        Room.databaseBuilder(
+            context,
+            FriendZoneDatabase::class.java,
+            "friendzone.db"
+        ).build()
+    }
+
+    val persistentMediaMetadataStore: PersistentMediaMetadataStore by lazy {
+        RoomPersistentMediaMetadataStore(
+            database.mediaAssetDao()
+        )
+    }
 
     val accountRepository: AccountRepository by lazy {
         AccountRepositoryFactory.create()
