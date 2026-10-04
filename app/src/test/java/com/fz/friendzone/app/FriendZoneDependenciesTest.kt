@@ -8,14 +8,20 @@ class FriendZoneDependenciesTest {
 
     @Test
     fun userRepository_isAvailableFromApplicationDependencies() {
-        val dependencies = FriendZoneDependencies()
+        val dependencies =
+            FriendZoneDependencies(
+                context = androidx.test.core.app.ApplicationProvider.getApplicationContext()
+            )
 
         assertNotNull(dependencies.userRepository)
     }
 
     @Test
     fun userRepository_returnsRepositoryFromApplicationDependencies() {
-        val dependencies = FriendZoneDependencies()
+        val dependencies =
+            FriendZoneDependencies(
+                context = androidx.test.core.app.ApplicationProvider.getApplicationContext()
+            )
 
         val repository = dependencies.userRepository
 
