@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
+    <!-- Needed for CameraX image/video capture -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".FriendZoneApplication"
         android:allowBackup="true"
