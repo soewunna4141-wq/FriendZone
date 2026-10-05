@@ -6,6 +6,7 @@ import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.PostMediaType
 import com.fz.friendzone.core.model.Reel
 import com.fz.friendzone.data.repository.NewsRepository
+import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReelsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +16,7 @@ import java.util.UUID
 class ContentCreationViewModel(
     private val newsRepository: NewsRepository,
     private val reelsRepository: ReelsRepository,
+    private val profileRepository: ProfileRepository,
     target: ContentCreationTarget
 ) : ViewModel() {
 
@@ -48,6 +50,14 @@ class ContentCreationViewModel(
         val state = _uiState.value
         val media = state.selectedMedia
         val caption = state.caption.trim()
+        val profile = profileRepository.getProfile()
+
+        if (profile == null) {
+            _uiState.value = state.copy(
+                errorMessage = "Profile is required to create content."
+            )
+            return
+        }
 
         if (
             state.target == ContentCreationTarget.REELS &&
@@ -97,7 +107,7 @@ class ContentCreationViewModel(
                     newsRepository.savePost(
                         Post(
                             id = UUID.randomUUID().toString(),
-                            userId = media?.ownerId ?: "",
+                            userId = profile.userId,
                             caption = caption,
                             mediaAssetId = media?.id,
                             mediaType = postMediaType
@@ -109,7 +119,7 @@ class ContentCreationViewModel(
                     reelsRepository.saveReel(
                         Reel(
                             id = UUID.randomUUID().toString(),
-                            userId = media?.ownerId ?: "",
+                            userId = profile.userId,
                             videoUrl = media?.uri ?: "",
                             caption = caption
                         )
