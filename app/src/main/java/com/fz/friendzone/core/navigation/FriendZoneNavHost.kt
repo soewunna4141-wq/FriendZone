@@ -144,6 +144,7 @@ fun FriendZoneNavHost(
                         ContentCreationViewModelFactory(
                             newsRepository = application.dependencies.newsRepository,
                             reelsRepository = application.dependencies.reelsRepository,
+                            profileRepository = application.dependencies.profileRepository,
                             target = ContentCreationTarget.NEWS
                         ).create(ContentCreationViewModel::class.java)
                     }
@@ -219,6 +220,7 @@ fun FriendZoneNavHost(
                         ContentCreationViewModelFactory(
                             newsRepository = application.dependencies.newsRepository,
                             reelsRepository = application.dependencies.reelsRepository,
+                            profileRepository = application.dependencies.profileRepository,
                             target = ContentCreationTarget.REELS
                         ).create(ContentCreationViewModel::class.java)
                     }
