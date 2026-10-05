@@ -483,6 +483,10 @@ private fun NewsLegacyMediaContent(
     post: Post
 ) {
     when (post.mediaType) {
+        PostMediaType.TEXT -> {
+            // Text-only posts have no media to render.
+        }
+
         PostMediaType.IMAGE -> {
             AsyncImage(
                 model = post.mediaUrl,
