@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.fz.friendzone.core.media.AndroidMediaPickerLauncher
 import com.fz.friendzone.core.media.MediaLibrary
@@ -41,12 +42,16 @@ fun ContentCreationScreen(
     onCameraRequested: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     val mediaPicker = remember(caller) {
         AndroidMediaPickerLauncher(caller)
     }
 
-    val mediaStorage = remember {
-        MediaStoreMediaStorage()
+    val mediaStorage = remember(context) {
+        MediaStoreMediaStorage(
+            contentResolver = context.contentResolver
+        )
     }
 
     var existingMedia by remember {
