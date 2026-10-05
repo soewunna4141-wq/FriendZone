@@ -1,7 +1,9 @@
 package com.fz.friendzone.feature.content
 
 import androidx.lifecycle.ViewModel
+import com.fz.friendzone.core.model.MediaType
 import com.fz.friendzone.core.model.Post
+import com.fz.friendzone.core.model.PostMediaType
 import com.fz.friendzone.core.model.Reel
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ReelsRepository
@@ -53,6 +55,16 @@ class ContentCreationViewModel(
             return
         }
 
+        if (
+            state.target == ContentCreationTarget.REELS &&
+            media.type != MediaType.VIDEO
+        ) {
+            _uiState.value = state.copy(
+                errorMessage = "Reels require video media."
+            )
+            return
+        }
+
         _uiState.value = state.copy(
             isLoading = true,
             errorMessage = null
@@ -61,12 +73,18 @@ class ContentCreationViewModel(
         runCatching {
             when (state.target) {
                 ContentCreationTarget.NEWS -> {
+                    val postMediaType = when (media.type) {
+                        MediaType.IMAGE -> PostMediaType.IMAGE
+                        MediaType.VIDEO -> PostMediaType.VIDEO
+                    }
+
                     newsRepository.savePost(
                         Post(
                             id = UUID.randomUUID().toString(),
                             userId = media.ownerId,
                             caption = state.caption,
-                            mediaAssetId = media.id
+                            mediaAssetId = media.id,
+                            mediaType = postMediaType
                         )
                     )
                 }
