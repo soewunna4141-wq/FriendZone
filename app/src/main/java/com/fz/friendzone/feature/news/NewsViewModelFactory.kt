@@ -2,6 +2,7 @@ package com.fz.friendzone.feature.news
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.data.repository.CommentRepository
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
@@ -11,9 +12,9 @@ class NewsViewModelFactory(
     private val newsRepository: NewsRepository,
     private val profileRepository: ProfileRepository,
     private val reactionRepository: ReactionRepository,
-    private val commentRepository: CommentRepository
+    private val commentRepository: CommentRepository,
+    private val mediaLibrary: MediaLibrary
 ) : ViewModelProvider.Factory {
-
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(
         modelClass: Class<T>
@@ -22,7 +23,8 @@ class NewsViewModelFactory(
             newsRepository = newsRepository,
             profileRepository = profileRepository,
             reactionRepository = reactionRepository,
-            commentRepository = commentRepository
+            commentRepository = commentRepository,
+            mediaLibrary = mediaLibrary
         ) as T
     }
 }
