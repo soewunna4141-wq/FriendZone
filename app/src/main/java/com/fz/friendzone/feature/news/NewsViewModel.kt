@@ -2,6 +2,7 @@ package com.fz.friendzone.feature.news
 
 import androidx.lifecycle.ViewModel
 import com.fz.friendzone.R
+import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.data.repository.CommentRepository
@@ -16,7 +17,8 @@ class NewsViewModel(
     private val newsRepository: NewsRepository,
     private val profileRepository: ProfileRepository,
     private val reactionRepository: ReactionRepository,
-    private val commentRepository: CommentRepository
+    private val commentRepository: CommentRepository,
+    private val mediaLibrary: MediaLibrary
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NewsUiState>(NewsUiState.Loading)
