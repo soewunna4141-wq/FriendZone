@@ -3,8 +3,8 @@ package com.fz.friendzone.feature.content
 import androidx.lifecycle.ViewModel
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Reel
-import com.fz.friendzone.core.repository.NewsRepository
-import com.fz.friendzone.core.repository.ReelsRepository
+import com.fz.friendzone.data.repository.NewsRepository
+import com.fz.friendzone.data.repository.ReelsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
