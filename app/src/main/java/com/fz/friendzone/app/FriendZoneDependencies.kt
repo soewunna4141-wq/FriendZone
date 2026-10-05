@@ -3,7 +3,9 @@ package com.fz.friendzone.app
 import android.content.Context
 import androidx.room.Room
 import com.fz.friendzone.core.media.FriendZoneDatabase
+import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.media.PersistentMediaMetadataStore
+import com.fz.friendzone.core.media.RoomMediaLibrary
 import com.fz.friendzone.core.media.RoomPersistentMediaMetadataStore
 import com.fz.friendzone.data.local.InMemoryReelsLocalDataSource
 import com.fz.friendzone.data.repository.AccountRepository
@@ -47,6 +49,12 @@ class FriendZoneDependencies(
     val persistentMediaMetadataStore: PersistentMediaMetadataStore by lazy {
         RoomPersistentMediaMetadataStore(
             database.mediaAssetDao()
+        )
+    }
+
+    val mediaLibrary: MediaLibrary by lazy {
+        RoomMediaLibrary(
+            persistentMediaMetadataStore
         )
     }
 
