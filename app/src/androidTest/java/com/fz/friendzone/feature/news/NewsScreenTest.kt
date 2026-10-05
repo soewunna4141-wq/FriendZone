@@ -7,7 +7,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Comment
+import com.fz.friendzone.core.model.MediaAsset
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
@@ -31,13 +33,15 @@ class NewsScreenTest {
         val newsRepository = FakeNewsRepository()
         val reactionRepository = FakeReactionRepository()
         val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
 
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
-                commentRepository = commentRepository
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
             )
         }
 
@@ -65,13 +69,15 @@ class NewsScreenTest {
         )
         val reactionRepository = FakeReactionRepository()
         val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
 
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
-                commentRepository = commentRepository
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
             )
         }
 
@@ -101,13 +107,15 @@ class NewsScreenTest {
         )
         val reactionRepository = FakeReactionRepository()
         val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
 
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
-                commentRepository = commentRepository
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
             )
         }
 
@@ -150,13 +158,15 @@ class NewsScreenTest {
 
         val reactionRepository = FakeReactionRepository()
         val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
 
         composeTestRule.setContent {
             NewsScreen(
                 repository = newsRepository,
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
-                commentRepository = commentRepository
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
             )
         }
 
@@ -197,6 +207,7 @@ class NewsScreenTest {
 
         val reactionRepository = FakeReactionRepository()
         val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
 
         val profileRepository = object : ProfileRepository {
             override fun getProfile(): Profile? {
@@ -225,7 +236,8 @@ class NewsScreenTest {
                 repository = newsRepository,
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
-                commentRepository = commentRepository
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
             )
         }
 
@@ -261,6 +273,7 @@ class NewsScreenTest {
 
         val reactionRepository = FakeReactionRepository()
         val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
 
         val profileRepository = object : ProfileRepository {
             override fun getProfile(): Profile? {
@@ -289,7 +302,8 @@ class NewsScreenTest {
                 repository = newsRepository,
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
-                commentRepository = commentRepository
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
             )
         }
 
@@ -317,6 +331,7 @@ class NewsScreenTest {
 
         val reactionRepository = FakeReactionRepository()
         val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
 
         val profileRepository = object : ProfileRepository {
             override fun getProfile(): Profile? {
@@ -345,7 +360,8 @@ class NewsScreenTest {
                 repository = newsRepository,
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
-                commentRepository = commentRepository
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
             )
         }
 
@@ -398,6 +414,7 @@ class NewsScreenTest {
         val commentRepository = FakeCommentRepository(
             comments = listOf(comment)
         )
+        val mediaLibrary = FakeMediaLibrary()
 
         val profileRepository = object : ProfileRepository {
             override fun getProfile(): Profile? {
@@ -426,7 +443,8 @@ class NewsScreenTest {
                 repository = newsRepository,
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
-                commentRepository = commentRepository
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
             )
         }
 
@@ -492,6 +510,32 @@ class NewsScreenTest {
 
         override fun saveComment(comment: Comment) {
             savedComments.add(comment)
+        }
+    }
+
+    private class FakeMediaLibrary : MediaLibrary {
+
+        private val assets = mutableListOf<MediaAsset>()
+
+        override fun add(asset: MediaAsset) {
+            assets.removeAll { it.id == asset.id }
+            assets.add(asset)
+        }
+
+        override fun getById(id: String): MediaAsset? {
+            return assets.firstOrNull { it.id == id }
+        }
+
+        override fun getByOwner(ownerId: String): List<MediaAsset> {
+            return assets.filter { it.ownerId == ownerId }
+        }
+
+        override fun getAll(): List<MediaAsset> {
+            return assets.toList()
+        }
+
+        override fun delete(id: String) {
+            assets.removeAll { it.id == id }
         }
     }
 }
