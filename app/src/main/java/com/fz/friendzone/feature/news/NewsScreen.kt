@@ -43,6 +43,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.fz.friendzone.R
+import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Comment
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.PostMediaType
@@ -61,14 +62,16 @@ fun NewsScreen(
     repository: NewsRepository,
     profileRepository: ProfileRepository,
     reactionRepository: ReactionRepository,
-    commentRepository: CommentRepository
+    commentRepository: CommentRepository,
+    mediaLibrary: MediaLibrary
 ) {
     val viewModel: NewsViewModel = viewModel(
         factory = NewsViewModelFactory(
             newsRepository = repository,
             profileRepository = profileRepository,
             reactionRepository = reactionRepository,
-            commentRepository = commentRepository
+            commentRepository = commentRepository,
+            mediaLibrary = mediaLibrary
         )
     )
 
