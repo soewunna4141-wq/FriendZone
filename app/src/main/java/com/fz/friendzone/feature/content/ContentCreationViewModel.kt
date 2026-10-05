@@ -47,8 +47,12 @@ class ContentCreationViewModel(
     private fun createContent() {
         val state = _uiState.value
         val media = state.selectedMedia
+        val caption = state.caption.trim()
 
-        if (media == null) {
+        if (
+            state.target == ContentCreationTarget.REELS &&
+            media == null
+        ) {
             _uiState.value = state.copy(
                 errorMessage = "Please select media first."
             )
@@ -56,8 +60,19 @@ class ContentCreationViewModel(
         }
 
         if (
+            state.target == ContentCreationTarget.NEWS &&
+            media == null &&
+            caption.isEmpty()
+        ) {
+            _uiState.value = state.copy(
+                errorMessage = "Please add text or select media."
+            )
+            return
+        }
+
+        if (
             state.target == ContentCreationTarget.REELS &&
-            media.type != MediaType.VIDEO
+            media?.type != MediaType.VIDEO
         ) {
             _uiState.value = state.copy(
                 errorMessage = "Reels require video media."
@@ -73,7 +88,8 @@ class ContentCreationViewModel(
         runCatching {
             when (state.target) {
                 ContentCreationTarget.NEWS -> {
-                    val postMediaType = when (media.type) {
+                    val postMediaType = when (media?.type) {
+                        null -> PostMediaType.TEXT
                         MediaType.IMAGE -> PostMediaType.IMAGE
                         MediaType.VIDEO -> PostMediaType.VIDEO
                     }
@@ -81,9 +97,9 @@ class ContentCreationViewModel(
                     newsRepository.savePost(
                         Post(
                             id = UUID.randomUUID().toString(),
-                            userId = media.ownerId,
-                            caption = state.caption,
-                            mediaAssetId = media.id,
+                            userId = media?.ownerId ?: "",
+                            caption = caption,
+                            mediaAssetId = media?.id,
                             mediaType = postMediaType
                         )
                     )
@@ -93,9 +109,9 @@ class ContentCreationViewModel(
                     reelsRepository.saveReel(
                         Reel(
                             id = UUID.randomUUID().toString(),
-                            userId = media.ownerId,
-                            videoUrl = media.uri,
-                            caption = state.caption
+                            userId = media?.ownerId ?: "",
+                            videoUrl = media?.uri ?: "",
+                            caption = caption
                         )
                     )
                 }
