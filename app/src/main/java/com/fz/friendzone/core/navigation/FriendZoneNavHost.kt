@@ -107,7 +107,8 @@ fun FriendZoneNavHost(
                     repository = application.dependencies.newsRepository,
                     profileRepository = application.dependencies.profileRepository,
                     reactionRepository = application.dependencies.reactionRepository,
-                    commentRepository = application.dependencies.commentRepository
+                    commentRepository = application.dependencies.commentRepository,
+                    mediaLibrary = application.dependencies.mediaLibrary
                 )
             }
         }
