@@ -83,12 +83,38 @@ class ContentCreationViewModelTest {
         viewModel.onAction(ContentCreationAction.Create)
 
         assertEquals(
-            "Please select media first.",
+            "Please add text or select media.",
             viewModel.uiState.value.errorMessage
         )
         assertFalse(viewModel.uiState.value.isCreated)
         assertTrue(newsRepository.savedPosts.isEmpty())
         assertTrue(reelsRepository.savedReels.isEmpty())
+    }
+
+    @Test
+    fun newsTextOnly_createsTextPostWithoutMedia() {
+        val newsRepository = RecordingNewsRepository()
+        val viewModel = ContentCreationViewModel(
+            newsRepository = newsRepository,
+            reelsRepository = RecordingReelsRepository(),
+            target = ContentCreationTarget.NEWS
+        )
+
+        viewModel.onAction(
+            ContentCreationAction.CaptionChanged("Text-only News")
+        )
+        viewModel.onAction(ContentCreationAction.Create)
+
+        val post = newsRepository.savedPosts.single()
+
+        assertEquals("user-1", post.userId)
+        assertEquals("Text-only News", post.caption)
+        assertNull(post.mediaAssetId)
+        assertNull(post.mediaUrl)
+        assertEquals(PostMediaType.TEXT, post.mediaType)
+        assertTrue(viewModel.uiState.value.isCreated)
+        assertFalse(viewModel.uiState.value.isLoading)
+        assertNull(viewModel.uiState.value.errorMessage)
     }
 
     @Test
