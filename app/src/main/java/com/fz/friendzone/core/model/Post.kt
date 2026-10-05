@@ -1,6 +1,7 @@
 package com.fz.friendzone.core.model
 
 enum class PostMediaType {
+    TEXT,
     IMAGE,
     VIDEO
 }
@@ -12,6 +13,6 @@ data class Post(
     val mediaAssetId: String? = null,
     @Deprecated("Use mediaAssetId to reference media through MediaLibrary.")
     val mediaUrl: String? = null,
-    val mediaType: PostMediaType = PostMediaType.IMAGE,
+    val mediaType: PostMediaType = PostMediaType.TEXT,
     val createdAt: Long = System.currentTimeMillis()
 )
