@@ -1,14 +1,23 @@
 package com.fz.friendzone.core.navigation
 
+import android.app.Activity
+import androidx.activity.ActivityResultCaller
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fz.friendzone.FriendZoneApplication
 import com.fz.friendzone.feature.account.AccountScreen
 import com.fz.friendzone.feature.accountsetup.AccountSetupScreen
+import com.fz.friendzone.feature.accountsetup.AccountSetupViewModel
 import com.fz.friendzone.feature.accountsetup.AccountSetupViewModelFactory
 import com.fz.friendzone.feature.choice.ChoiceScreen
+import com.fz.friendzone.feature.content.ContentCreationScreen
+import com.fz.friendzone.feature.content.ContentCreationTarget
+import com.fz.friendzone.feature.content.ContentCreationViewModel
+import com.fz.friendzone.feature.content.ContentCreationViewModelFactory
 import com.fz.friendzone.feature.follow.FollowScreen
 import com.fz.friendzone.feature.friend.FriendScreen
 import com.fz.friendzone.feature.login.LoginScreen
@@ -22,6 +31,14 @@ fun FriendZoneNavHost(
     application: FriendZoneApplication
 ) {
     val navController = rememberNavController()
+    val context = LocalContext.current
+
+    val activityResultCaller = context as? ActivityResultCaller
+    val activity = context as? Activity
+
+    val ownerId = remember {
+        activity?.let { it.packageName } ?: "friendzone_user"
+    }
 
     NavHost(
         navController = navController,
@@ -55,7 +72,7 @@ fun FriendZoneNavHost(
         composable(NavigationRoutes.ACCOUNT_SETUP) {
             AccountSetupScreen(
                 viewModel = AccountSetupViewModelFactory().create(
-                    com.fz.friendzone.feature.accountsetup.AccountSetupViewModel::class.java
+                    AccountSetupViewModel::class.java
                 ),
                 onSetupComplete = {
                     navController.popBackStack(
@@ -100,7 +117,9 @@ fun FriendZoneNavHost(
                     navController.navigate(NavigationRoutes.FOLLOW)
                 },
                 onComposerClick = {
-                    navController.navigate(NavigationRoutes.COMPOSER)
+                    navController.navigate(
+                        "${NavigationRoutes.COMPOSER}_news"
+                    )
                 }
             ) {
                 NewsScreen(
@@ -109,6 +128,27 @@ fun FriendZoneNavHost(
                     reactionRepository = application.dependencies.reactionRepository,
                     commentRepository = application.dependencies.commentRepository,
                     mediaLibrary = application.dependencies.mediaLibrary
+                )
+            }
+        }
+
+        composable("${NavigationRoutes.COMPOSER}_news") {
+            if (activityResultCaller == null) {
+                navController.popBackStack()
+            } else {
+                val viewModel = remember {
+                    ContentCreationViewModelFactory(
+                        newsRepository = application.dependencies.newsRepository,
+                        reelsRepository = application.dependencies.reelsRepository,
+                        target = ContentCreationTarget.NEWS
+                    ).create(ContentCreationViewModel::class.java)
+                }
+
+                ContentCreationScreen(
+                    caller = activityResultCaller,
+                    mediaLibrary = application.dependencies.mediaLibrary,
+                    ownerId = ownerId,
+                    viewModel = viewModel
                 )
             }
         }
@@ -140,11 +180,34 @@ fun FriendZoneNavHost(
                     navController.navigate(NavigationRoutes.FOLLOW)
                 },
                 onComposerClick = {
-                    navController.navigate(NavigationRoutes.COMPOSER)
+                    navController.navigate(
+                        "${NavigationRoutes.COMPOSER}_reels"
+                    )
                 }
             ) {
                 ReelsScreen(
                     repository = application.dependencies.reelsRepository
+                )
+            }
+        }
+
+        composable("${NavigationRoutes.COMPOSER}_reels") {
+            if (activityResultCaller == null) {
+                navController.popBackStack()
+            } else {
+                val viewModel = remember {
+                    ContentCreationViewModelFactory(
+                        newsRepository = application.dependencies.newsRepository,
+                        reelsRepository = application.dependencies.reelsRepository,
+                        target = ContentCreationTarget.REELS
+                    ).create(ContentCreationViewModel::class.java)
+                }
+
+                ContentCreationScreen(
+                    caller = activityResultCaller,
+                    mediaLibrary = application.dependencies.mediaLibrary,
+                    ownerId = ownerId,
+                    viewModel = viewModel
                 )
             }
         }
