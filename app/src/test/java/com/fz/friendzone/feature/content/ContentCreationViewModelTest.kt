@@ -5,8 +5,10 @@ import com.fz.friendzone.core.model.MediaSource
 import com.fz.friendzone.core.model.MediaType
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.PostMediaType
+import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reel
 import com.fz.friendzone.data.repository.NewsRepository
+import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReelsRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -77,6 +79,7 @@ class ContentCreationViewModelTest {
         val viewModel = ContentCreationViewModel(
             newsRepository = newsRepository,
             reelsRepository = reelsRepository,
+            profileRepository = RecordingProfileRepository(),
             target = ContentCreationTarget.NEWS
         )
 
@@ -92,11 +95,44 @@ class ContentCreationViewModelTest {
     }
 
     @Test
-    fun newsTextOnly_createsTextPostWithoutMedia() {
+    fun createWithoutProfile_setsErrorAndDoesNotSave() {
+        val newsRepository = RecordingNewsRepository()
+        val reelsRepository = RecordingReelsRepository()
+        val viewModel = ContentCreationViewModel(
+            newsRepository = newsRepository,
+            reelsRepository = reelsRepository,
+            profileRepository = RecordingProfileRepository(
+                profile = null
+            ),
+            target = ContentCreationTarget.NEWS
+        )
+
+        viewModel.onAction(
+            ContentCreationAction.CaptionChanged("No profile")
+        )
+        viewModel.onAction(ContentCreationAction.Create)
+
+        assertEquals(
+            "Profile is required to create content.",
+            viewModel.uiState.value.errorMessage
+        )
+        assertFalse(viewModel.uiState.value.isCreated)
+        assertTrue(newsRepository.savedPosts.isEmpty())
+        assertTrue(reelsRepository.savedReels.isEmpty())
+    }
+
+    @Test
+    fun newsTextOnly_usesProfileIdentity() {
         val newsRepository = RecordingNewsRepository()
         val viewModel = ContentCreationViewModel(
             newsRepository = newsRepository,
             reelsRepository = RecordingReelsRepository(),
+            profileRepository = RecordingProfileRepository(
+                profile = Profile(
+                    userId = "profile-user-001",
+                    displayName = "FriendZone User"
+                )
+            ),
             target = ContentCreationTarget.NEWS
         )
 
@@ -107,7 +143,7 @@ class ContentCreationViewModelTest {
 
         val post = newsRepository.savedPosts.single()
 
-        assertEquals("user-1", post.userId)
+        assertEquals("profile-user-001", post.userId)
         assertEquals("Text-only News", post.caption)
         assertNull(post.mediaAssetId)
         assertNull(post.mediaUrl)
@@ -118,12 +154,18 @@ class ContentCreationViewModelTest {
     }
 
     @Test
-    fun newsImage_createsImagePostWithMediaReference() {
+    fun newsImage_usesProfileIdentityAndMediaReference() {
         val newsRepository = RecordingNewsRepository()
         val media = imageAsset()
         val viewModel = ContentCreationViewModel(
             newsRepository = newsRepository,
             reelsRepository = RecordingReelsRepository(),
+            profileRepository = RecordingProfileRepository(
+                profile = Profile(
+                    userId = "profile-user-001",
+                    displayName = "FriendZone User"
+                )
+            ),
             target = ContentCreationTarget.NEWS
         )
 
@@ -135,7 +177,7 @@ class ContentCreationViewModelTest {
 
         val post = newsRepository.savedPosts.single()
 
-        assertEquals(media.ownerId, post.userId)
+        assertEquals("profile-user-001", post.userId)
         assertEquals("News image", post.caption)
         assertEquals(media.id, post.mediaAssetId)
         assertEquals(PostMediaType.IMAGE, post.mediaType)
@@ -146,12 +188,18 @@ class ContentCreationViewModelTest {
     }
 
     @Test
-    fun newsVideo_createsVideoPostWithMediaReference() {
+    fun newsVideo_usesProfileIdentityAndMediaReference() {
         val newsRepository = RecordingNewsRepository()
         val media = videoAsset()
         val viewModel = ContentCreationViewModel(
             newsRepository = newsRepository,
             reelsRepository = RecordingReelsRepository(),
+            profileRepository = RecordingProfileRepository(
+                profile = Profile(
+                    userId = "profile-user-001",
+                    displayName = "FriendZone User"
+                )
+            ),
             target = ContentCreationTarget.NEWS
         )
 
@@ -160,19 +208,25 @@ class ContentCreationViewModelTest {
 
         val post = newsRepository.savedPosts.single()
 
-        assertEquals(media.ownerId, post.userId)
+        assertEquals("profile-user-001", post.userId)
         assertEquals(media.id, post.mediaAssetId)
         assertEquals(PostMediaType.VIDEO, post.mediaType)
         assertTrue(viewModel.uiState.value.isCreated)
     }
 
     @Test
-    fun reelsVideo_createsReelWithVideoUrl() {
+    fun reelsVideo_usesProfileIdentity() {
         val reelsRepository = RecordingReelsRepository()
         val media = videoAsset()
         val viewModel = ContentCreationViewModel(
             newsRepository = RecordingNewsRepository(),
             reelsRepository = reelsRepository,
+            profileRepository = RecordingProfileRepository(
+                profile = Profile(
+                    userId = "profile-user-001",
+                    displayName = "FriendZone User"
+                )
+            ),
             target = ContentCreationTarget.REELS
         )
 
@@ -184,7 +238,7 @@ class ContentCreationViewModelTest {
 
         val reel = reelsRepository.savedReels.single()
 
-        assertEquals(media.ownerId, reel.userId)
+        assertEquals("profile-user-001", reel.userId)
         assertEquals(media.uri, reel.videoUrl)
         assertEquals("My reel", reel.caption)
         assertTrue(viewModel.uiState.value.isCreated)
@@ -198,6 +252,7 @@ class ContentCreationViewModelTest {
         val viewModel = ContentCreationViewModel(
             newsRepository = RecordingNewsRepository(),
             reelsRepository = reelsRepository,
+            profileRepository = RecordingProfileRepository(),
             target = ContentCreationTarget.REELS
         )
 
@@ -225,6 +280,7 @@ class ContentCreationViewModelTest {
         val viewModel = ContentCreationViewModel(
             newsRepository = newsRepository,
             reelsRepository = RecordingReelsRepository(),
+            profileRepository = RecordingProfileRepository(),
             target = ContentCreationTarget.NEWS
         )
 
@@ -254,6 +310,7 @@ class ContentCreationViewModelTest {
         val viewModel = ContentCreationViewModel(
             newsRepository = RecordingNewsRepository(),
             reelsRepository = reelsRepository,
+            profileRepository = RecordingProfileRepository(),
             target = ContentCreationTarget.REELS
         )
 
@@ -276,6 +333,7 @@ class ContentCreationViewModelTest {
         return ContentCreationViewModel(
             newsRepository = RecordingNewsRepository(),
             reelsRepository = RecordingReelsRepository(),
+            profileRepository = RecordingProfileRepository(),
             target = target
         )
     }
@@ -283,7 +341,7 @@ class ContentCreationViewModelTest {
     private fun imageAsset(): MediaAsset {
         return MediaAsset(
             id = "media-image-1",
-            ownerId = "user-1",
+            ownerId = "media-owner-999",
             uri = "content://friendzone/image-1",
             type = MediaType.IMAGE,
             source = MediaSource.GALLERY
@@ -293,11 +351,26 @@ class ContentCreationViewModelTest {
     private fun videoAsset(): MediaAsset {
         return MediaAsset(
             id = "media-video-1",
-            ownerId = "user-1",
+            ownerId = "media-owner-999",
             uri = "content://friendzone/video-1",
             type = MediaType.VIDEO,
             source = MediaSource.GALLERY
         )
+    }
+
+    private class RecordingProfileRepository(
+        private val profile: Profile? = Profile(
+            userId = "user-1",
+            displayName = "FriendZone User"
+        )
+    ) : ProfileRepository {
+
+        override fun getProfile(): Profile? {
+            return profile
+        }
+
+        override fun saveProfile(profile: Profile) {
+        }
     }
 
     private class RecordingNewsRepository : NewsRepository {
