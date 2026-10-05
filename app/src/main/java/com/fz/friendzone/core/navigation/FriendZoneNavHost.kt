@@ -1,8 +1,10 @@
 package com.fz.friendzone.core.navigation
 
-import android.app.Activity
 import androidx.activity.result.ActivityResultCaller
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
@@ -34,11 +36,6 @@ fun FriendZoneNavHost(
     val context = LocalContext.current
 
     val activityResultCaller = context as? ActivityResultCaller
-    val activity = context as? Activity
-
-    val ownerId = remember {
-        activity?.let { it.packageName } ?: "friendzone_user"
-    }
 
     NavHost(
         navController = navController,
@@ -136,20 +133,36 @@ fun FriendZoneNavHost(
             if (activityResultCaller == null) {
                 navController.popBackStack()
             } else {
-                val viewModel = remember {
-                    ContentCreationViewModelFactory(
-                        newsRepository = application.dependencies.newsRepository,
-                        reelsRepository = application.dependencies.reelsRepository,
-                        target = ContentCreationTarget.NEWS
-                    ).create(ContentCreationViewModel::class.java)
-                }
+                val ownerId = application.dependencies.profileRepository
+                    .getProfile()
+                    ?.userId
 
-                ContentCreationScreen(
-                    caller = activityResultCaller,
-                    mediaLibrary = application.dependencies.mediaLibrary,
-                    ownerId = ownerId,
-                    viewModel = viewModel
-                )
+                if (ownerId == null) {
+                    navController.popBackStack()
+                } else {
+                    val viewModel = remember {
+                        ContentCreationViewModelFactory(
+                            newsRepository = application.dependencies.newsRepository,
+                            reelsRepository = application.dependencies.reelsRepository,
+                            target = ContentCreationTarget.NEWS
+                        ).create(ContentCreationViewModel::class.java)
+                    }
+
+                    val creationState by viewModel.uiState.collectAsState()
+
+                    LaunchedEffect(creationState.isCreated) {
+                        if (creationState.isCreated) {
+                            navController.popBackStack()
+                        }
+                    }
+
+                    ContentCreationScreen(
+                        caller = activityResultCaller,
+                        mediaLibrary = application.dependencies.mediaLibrary,
+                        ownerId = ownerId,
+                        viewModel = viewModel
+                    )
+                }
             }
         }
 
@@ -195,20 +208,36 @@ fun FriendZoneNavHost(
             if (activityResultCaller == null) {
                 navController.popBackStack()
             } else {
-                val viewModel = remember {
-                    ContentCreationViewModelFactory(
-                        newsRepository = application.dependencies.newsRepository,
-                        reelsRepository = application.dependencies.reelsRepository,
-                        target = ContentCreationTarget.REELS
-                    ).create(ContentCreationViewModel::class.java)
-                }
+                val ownerId = application.dependencies.profileRepository
+                    .getProfile()
+                    ?.userId
 
-                ContentCreationScreen(
-                    caller = activityResultCaller,
-                    mediaLibrary = application.dependencies.mediaLibrary,
-                    ownerId = ownerId,
-                    viewModel = viewModel
-                )
+                if (ownerId == null) {
+                    navController.popBackStack()
+                } else {
+                    val viewModel = remember {
+                        ContentCreationViewModelFactory(
+                            newsRepository = application.dependencies.newsRepository,
+                            reelsRepository = application.dependencies.reelsRepository,
+                            target = ContentCreationTarget.REELS
+                        ).create(ContentCreationViewModel::class.java)
+                    }
+
+                    val creationState by viewModel.uiState.collectAsState()
+
+                    LaunchedEffect(creationState.isCreated) {
+                        if (creationState.isCreated) {
+                            navController.popBackStack()
+                        }
+                    }
+
+                    ContentCreationScreen(
+                        caller = activityResultCaller,
+                        mediaLibrary = application.dependencies.mediaLibrary,
+                        ownerId = ownerId,
+                        viewModel = viewModel
+                    )
+                }
             }
         }
     }
