@@ -13,9 +13,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.fz.friendzone.core.media.AndroidMediaPickerLauncher
+import com.fz.friendzone.core.media.CameraCaptureScreen
+import com.fz.friendzone.core.media.CameraCaptureUiState
 import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.media.MediaStoreMediaStorage
 import com.fz.friendzone.core.model.MediaAsset
@@ -38,11 +42,11 @@ fun ContentCreationScreen(
     caller: ActivityResultCaller,
     mediaLibrary: MediaLibrary,
     ownerId: String,
-    onMediaSelected: (MediaAsset) -> Unit,
-    onCameraRequested: () -> Unit,
+    viewModel: ContentCreationViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
 
     val mediaPicker = remember(caller) {
         AndroidMediaPickerLauncher(caller)
@@ -58,16 +62,28 @@ fun ContentCreationScreen(
         mutableStateOf<List<MediaAsset>>(emptyList())
     }
 
+    var showCamera by remember {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect(mediaLibrary, ownerId) {
         existingMedia = withContext(Dispatchers.IO) {
             mediaLibrary.getByOwner(ownerId)
         }
     }
 
-    fun importGalleryMedia(
+    fun importMedia(
         uri: Uri,
-        type: MediaType
+        type: MediaType,
+        source: MediaSource
     ) {
+        if (
+            uiState.target == ContentCreationTarget.REELS &&
+            type != MediaType.VIDEO
+        ) {
+            return
+        }
+
         val mediaId = UUID.randomUUID().toString()
 
         mediaStorage.save(
@@ -81,13 +97,40 @@ fun ContentCreationScreen(
                 ownerId = ownerId,
                 uri = storedUri.toString(),
                 type = type,
-                source = MediaSource.GALLERY
+                source = source
             )
 
             mediaLibrary.add(asset)
             existingMedia = listOf(asset) + existingMedia
-            onMediaSelected(asset)
+
+            viewModel.onAction(
+                ContentCreationAction.MediaSelected(asset)
+            )
         }
+    }
+
+    if (showCamera) {
+        CameraCaptureScreen(
+            caller = caller,
+            onStateChanged = { state ->
+                if (state is CameraCaptureUiState.Captured) {
+                    importMedia(
+                        uri = state.uri,
+                        type = if (state.isVideo) {
+                            MediaType.VIDEO
+                        } else {
+                            MediaType.IMAGE
+                        },
+                        source = MediaSource.CAMERA
+                    )
+
+                    showCamera = false
+                }
+            },
+            modifier = modifier
+        )
+
+        return
     }
 
     Column(
@@ -97,7 +140,11 @@ fun ContentCreationScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "Create Content",
+            text = if (uiState.target == ContentCreationTarget.NEWS) {
+                "Create News Post"
+            } else {
+                "Create Reel"
+            },
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -114,13 +161,15 @@ fun ContentCreationScreen(
                 onClick = {
                     mediaPicker.pickImage { uri ->
                         uri?.let {
-                            importGalleryMedia(
+                            importMedia(
                                 uri = it,
-                                type = MediaType.IMAGE
+                                type = MediaType.IMAGE,
+                                source = MediaSource.GALLERY
                             )
                         }
                     }
                 },
+                enabled = uiState.target == ContentCreationTarget.NEWS,
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Gallery Image")
@@ -130,9 +179,10 @@ fun ContentCreationScreen(
                 onClick = {
                     mediaPicker.pickVideo { uri ->
                         uri?.let {
-                            importGalleryMedia(
+                            importMedia(
                                 uri = it,
-                                type = MediaType.VIDEO
+                                type = MediaType.VIDEO,
+                                source = MediaSource.GALLERY
                             )
                         }
                     }
@@ -144,7 +194,9 @@ fun ContentCreationScreen(
         }
 
         Button(
-            onClick = onCameraRequested,
+            onClick = {
+                showCamera = true
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Camera Photo / Video")
@@ -166,17 +218,77 @@ fun ContentCreationScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(
-                    items = existingMedia,
+                    items = existingMedia.filter { asset ->
+                        uiState.target == ContentCreationTarget.NEWS ||
+                            asset.type == MediaType.VIDEO
+                    },
                     key = { it.id }
                 ) { asset ->
                     ExistingMediaCard(
                         asset = asset,
+                        selected = uiState.selectedMedia?.id == asset.id,
                         onClick = {
-                            onMediaSelected(asset)
+                            viewModel.onAction(
+                                ContentCreationAction.MediaSelected(asset)
+                            )
                         }
                     )
                 }
             }
+        }
+
+        uiState.selectedMedia?.let { selected ->
+            Text(
+                text = "Selected: " + selected.type.name,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        OutlinedTextField(
+            value = uiState.caption,
+            onValueChange = { value ->
+                viewModel.onAction(
+                    ContentCreationAction.CaptionChanged(value)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text("Caption")
+            },
+            enabled = !uiState.isLoading
+        )
+
+        uiState.errorMessage?.let { message ->
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        Button(
+            onClick = {
+                viewModel.onAction(
+                    ContentCreationAction.Create
+                )
+            },
+            enabled = !uiState.isLoading && !uiState.isCreated,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = if (uiState.isLoading) {
+                    "Creating..."
+                } else {
+                    "Create"
+                }
+            )
+        }
+
+        if (uiState.isCreated) {
+            Text(
+                text = "Content created successfully.",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
@@ -184,6 +296,7 @@ fun ContentCreationScreen(
 @Composable
 private fun ExistingMediaCard(
     asset: MediaAsset,
+    selected: Boolean,
     onClick: () -> Unit
 ) {
     Card(
@@ -194,7 +307,11 @@ private fun ExistingMediaCard(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = asset.type.name,
+                text = if (selected) {
+                    "Selected • " + asset.type.name
+                } else {
+                    asset.type.name
+                },
                 style = MaterialTheme.typography.titleSmall
             )
 
