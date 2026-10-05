@@ -1,7 +1,7 @@
 package com.fz.friendzone.core.navigation
 
 import android.app.Activity
-import androidx.activity.ActivityResultCaller
+import androidx.activity.result.ActivityResultCaller
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
