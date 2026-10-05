@@ -45,6 +45,7 @@ import coil.compose.AsyncImage
 import com.fz.friendzone.R
 import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Comment
+import com.fz.friendzone.core.model.MediaAsset
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.PostMediaType
 import com.fz.friendzone.core.model.Profile
@@ -133,6 +134,7 @@ fun NewsScreen(
                 NewsPostList(
                     posts = state.posts,
                     currentUserId = currentProfile?.userId,
+                    mediaLibrary = mediaLibrary,
                     onLikePost = { postId, userId ->
                         viewModel.onAction(
                             NewsAction.SaveReaction(
@@ -218,6 +220,7 @@ private fun NewsCreatePost(
 private fun NewsPostList(
     posts: List<NewsPostUiModel>,
     currentUserId: String?,
+    mediaLibrary: MediaLibrary,
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit,
     modifier: Modifier = Modifier
@@ -253,6 +256,7 @@ private fun NewsPostList(
                 currentUserId = currentUserId,
                 reactionCount = postUiModel.reactionCount,
                 comments = postUiModel.comments,
+                mediaLibrary = mediaLibrary,
                 onLikePost = onLikePost,
                 onSaveComment = onSaveComment
             )
@@ -267,6 +271,7 @@ private fun NewsPostCard(
     currentUserId: String?,
     reactionCount: Int,
     comments: List<Comment>,
+    mediaLibrary: MediaLibrary,
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit
 ) {
@@ -288,7 +293,8 @@ private fun NewsPostCard(
             }
 
             NewsPostContent(
-                post = post
+                post = post,
+                mediaLibrary = mediaLibrary
             )
 
             Button(
@@ -414,7 +420,8 @@ private fun NewsAuthorHeader(
 
 @Composable
 private fun NewsPostContent(
-    post: Post
+    post: Post,
+    mediaLibrary: MediaLibrary
 ) {
     Text(
         text = post.caption,
@@ -431,25 +438,67 @@ private fun NewsPostContent(
         modifier = Modifier.padding(top = 6.dp)
     )
 
-    if (!post.mediaUrl.isNullOrBlank()) {
-        when (post.mediaType) {
-            PostMediaType.IMAGE -> {
-                AsyncImage(
-                    model = post.mediaUrl,
-                    contentDescription = post.caption,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                        .clip(MaterialTheme.shapes.medium),
-                    contentScale = ContentScale.Crop
-                )
-            }
+    val mediaAsset = post.mediaAssetId?.let { mediaLibrary.getById(it) }
 
-            PostMediaType.VIDEO -> {
-                NewsVideoPlayer(
-                    videoUrl = post.mediaUrl
-                )
-            }
+    if (mediaAsset != null) {
+        NewsMediaContent(
+            post = post,
+            mediaAsset = mediaAsset
+        )
+    } else if (!post.mediaUrl.isNullOrBlank()) {
+        NewsLegacyMediaContent(
+            post = post
+        )
+    }
+}
+
+@Composable
+private fun NewsMediaContent(
+    post: Post,
+    mediaAsset: MediaAsset
+) {
+    when (mediaAsset.type) {
+        com.fz.friendzone.core.model.MediaType.IMAGE -> {
+            AsyncImage(
+                model = mediaAsset.uri,
+                contentDescription = post.caption,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+                    .clip(MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        com.fz.friendzone.core.model.MediaType.VIDEO -> {
+            NewsVideoPlayer(
+                videoUrl = mediaAsset.uri
+            )
+        }
+    }
+}
+
+@Composable
+private fun NewsLegacyMediaContent(
+    post: Post
+) {
+    when (post.mediaType) {
+        PostMediaType.IMAGE -> {
+            AsyncImage(
+                model = post.mediaUrl,
+                contentDescription = post.caption,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+                    .clip(MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        PostMediaType.VIDEO -> {
+            NewsVideoPlayer(
+                videoUrl = post.mediaUrl!!
+            )
         }
     }
 }
