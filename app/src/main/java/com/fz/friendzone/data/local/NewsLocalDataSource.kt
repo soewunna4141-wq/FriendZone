@@ -7,4 +7,6 @@ interface NewsLocalDataSource {
     fun getPosts(): List<Post>
 
     fun savePost(post: Post)
+
+    fun updatePost(post: Post)
 }
