@@ -223,6 +223,7 @@ private fun NewsPostList(
     mediaLibrary: MediaLibrary,
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit,
+    onUpdatePost: (Post) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (posts.isEmpty()) {
@@ -258,7 +259,8 @@ private fun NewsPostList(
                 comments = postUiModel.comments,
                 mediaLibrary = mediaLibrary,
                 onLikePost = onLikePost,
-                onSaveComment = onSaveComment
+                onSaveComment = onSaveComment,
+                onUpdatePost = onUpdatePost
             )
         }
     }
@@ -273,11 +275,23 @@ private fun NewsPostCard(
     comments: List<Comment>,
     mediaLibrary: MediaLibrary,
     onLikePost: (postId: String, userId: String) -> Unit,
-    onSaveComment: (Comment) -> Unit
+    onSaveComment: (Comment) -> Unit,
+    onUpdatePost: (Post) -> Unit
 ) {
     var commentText by remember(post.id) {
         mutableStateOf("")
     }
+
+    var isEditing by remember(post.id) {
+        mutableStateOf(false)
+    }
+
+    var editedCaption by remember(post.id, post.caption) {
+        mutableStateOf(post.caption)
+    }
+
+    val isOwner = !currentUserId.isNullOrBlank() &&
+        currentUserId == post.userId
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -292,10 +306,75 @@ private fun NewsPostCard(
                 )
             }
 
-            NewsPostContent(
-                post = post,
-                mediaLibrary = mediaLibrary
-            )
+            if (isEditing && isOwner) {
+                OutlinedTextField(
+                    value = editedCaption,
+                    onValueChange = { editedCaption = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    label = {
+                        Text(text = "Edit post")
+                    },
+                    singleLine = false
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            val trimmedCaption = editedCaption.trim()
+
+                            if (trimmedCaption.isNotEmpty()) {
+                                onUpdatePost(
+                                    post.copy(
+                                        caption = trimmedCaption
+                                    )
+                                )
+
+                                isEditing = false
+                            }
+                        },
+                        enabled = editedCaption.trim().isNotEmpty(),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Save")
+                    }
+
+                    Button(
+                        onClick = {
+                            editedCaption = post.caption
+                            isEditing = false
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Cancel")
+                    }
+                }
+            } else {
+                NewsPostContent(
+                    post = post,
+                    mediaLibrary = mediaLibrary
+                )
+
+                if (isOwner) {
+                    Button(
+                        onClick = {
+                            editedCaption = post.caption
+                            isEditing = true
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                    ) {
+                        Text(text = "Edit")
+                    }
+                }
+            }
 
             Button(
                 onClick = {
