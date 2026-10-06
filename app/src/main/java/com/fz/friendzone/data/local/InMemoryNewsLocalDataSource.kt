@@ -16,4 +16,14 @@ class InMemoryNewsLocalDataSource : NewsLocalDataSource {
     override fun savePost(post: Post) {
         posts.add(post)
     }
+
+    override fun updatePost(post: Post) {
+        val index = posts.indexOfFirst { existingPost ->
+            existingPost.id == post.id
+        }
+
+        if (index >= 0) {
+            posts[index] = post
+        }
+    }
 }
