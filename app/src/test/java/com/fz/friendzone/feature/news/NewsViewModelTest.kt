@@ -330,6 +330,77 @@ class NewsViewModelTest {
     }
 
     @Test
+    fun updatePost_ownerCannotChangeLifecycleFields() {
+        val existingPost = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Original caption",
+            createdAt = 1000L,
+            lifecycleState = PostLifecycleState.BIN,
+            deletedAt = 2000L
+        )
+
+        val requestedUpdate = existingPost.copy(
+            caption = "Updated caption",
+            id = "different-id",
+            userId = "different-user",
+            createdAt = 9999L,
+            lifecycleState = PostLifecycleState.ACTIVE,
+            deletedAt = null
+        )
+
+        val newsRepository = FakeNewsRepository(
+            binPosts = listOf(existingPost)
+        )
+
+        val viewModel = createViewModel(
+            newsRepository = newsRepository,
+            profileRepository = FakeProfileRepository(
+                currentProfile = Profile(
+                    userId = "user-1",
+                    displayName = "Owner"
+                )
+            )
+        )
+
+        viewModel.onAction(
+            NewsAction.UpdatePost(requestedUpdate)
+        )
+
+        val updatedPost = newsRepository.getBinPosts().single()
+
+        assertEquals(
+            "post-1",
+            updatedPost.id
+        )
+
+        assertEquals(
+            "user-1",
+            updatedPost.userId
+        )
+
+        assertEquals(
+            1000L,
+            updatedPost.createdAt
+        )
+
+        assertEquals(
+            PostLifecycleState.BIN,
+            updatedPost.lifecycleState
+        )
+
+        assertEquals(
+            2000L,
+            updatedPost.deletedAt
+        )
+
+        assertEquals(
+            "Updated caption",
+            updatedPost.caption
+        )
+    }
+
+    @Test
     fun saveReaction_savesReactionAndReloadsPosts() {
         val post = Post(
             id = "post-1",
