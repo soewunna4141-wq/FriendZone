@@ -272,8 +272,22 @@ class ContentCreationViewModelTest {
         val newsRepository = object : NewsRepository {
             override fun getPosts(): List<Post> = emptyList()
 
+            override fun getBinPosts(): List<Post> = emptyList()
+
             override fun savePost(post: Post) {
                 error("Test save error")
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -380,8 +394,24 @@ class ContentCreationViewModelTest {
             return savedPosts.toList()
         }
 
+        override fun getBinPosts(): List<Post> {
+            return emptyList()
+        }
+
         override fun savePost(post: Post) {
             savedPosts.add(post)
+        }
+
+        override fun updatePost(post: Post) {
+        }
+
+        override fun movePostToBin(postId: String) {
+        }
+
+        override fun restorePost(postId: String) {
+        }
+
+        override fun movePostToAsh(postId: String) {
         }
     }
 
