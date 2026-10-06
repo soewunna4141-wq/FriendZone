@@ -15,8 +15,8 @@ import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
 import androidx.camera.view.PreviewView
+import androidx.lifecycle.LifecycleOwner
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -157,7 +157,11 @@ class CameraXCaptureManager(
                 .build()
 
         recording = capture.output
-            .prepareRecording(context, outputOptions)
+            .prepareRecording(
+                context,
+                outputOptions
+            )
+            .withAudioEnabled()
             .start(executor) { event ->
                 when (event) {
                     is androidx.camera.video.VideoRecordEvent.Finalize -> {
