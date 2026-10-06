@@ -12,6 +12,10 @@ sealed interface NewsAction {
         val post: Post
     ) : NewsAction
 
+    data class UpdatePost(
+        val post: Post
+    ) : NewsAction
+
     data class SaveReaction(
         val reaction: Reaction
     ) : NewsAction
