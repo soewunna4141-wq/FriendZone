@@ -22,7 +22,23 @@ class NewsRepositoryImplTest {
                 return posts
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -44,8 +60,24 @@ class NewsRepositoryImplTest {
                 return savedPosts
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
                 savedPosts.add(post)
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
