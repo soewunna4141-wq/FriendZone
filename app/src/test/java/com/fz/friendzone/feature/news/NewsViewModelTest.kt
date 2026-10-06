@@ -29,7 +29,23 @@ class NewsViewModelTest {
                 return posts
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -69,7 +85,23 @@ class NewsViewModelTest {
                 return emptyList()
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -115,7 +147,23 @@ class NewsViewModelTest {
                 return listOf(post)
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -165,7 +213,23 @@ class NewsViewModelTest {
                 return listOf(post)
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -237,7 +301,23 @@ class NewsViewModelTest {
                 return listOf(post)
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -300,7 +380,23 @@ class NewsViewModelTest {
                 error("Test error")
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -343,8 +439,24 @@ class NewsViewModelTest {
                 return savedPosts.toList()
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
                 savedPosts.add(post)
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -397,8 +509,24 @@ class NewsViewModelTest {
                 return emptyList()
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
                 error("Test save error")
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -453,8 +581,24 @@ class NewsViewModelTest {
                 }
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
                 savedPosts.add(post)
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -522,7 +666,23 @@ class NewsViewModelTest {
                 return listOf(post)
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
@@ -589,7 +749,23 @@ class NewsViewModelTest {
                 return listOf(post)
             }
 
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
             }
         }
 
