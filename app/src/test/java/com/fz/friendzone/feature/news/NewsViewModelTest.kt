@@ -1,7 +1,10 @@
 package com.fz.friendzone.feature.news
 
+import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Comment
+import com.fz.friendzone.core.model.MediaAsset
 import com.fz.friendzone.core.model.Post
+import com.fz.friendzone.core.model.PostLifecycleState
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.CommentRepository
@@ -24,43 +27,13 @@ class NewsViewModelTest {
             )
         )
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return posts
-            }
+        val newsRepository = FakeNewsRepository(
+            activePosts = posts
+        )
 
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
+        val viewModel = createViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
-            commentRepository = FakeCommentRepository()
+            profileRepository = FakeProfileRepository()
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -80,43 +53,9 @@ class NewsViewModelTest {
 
     @Test
     fun loadPosts_whenRepositoryReturnsEmptyList_returnsEmptySuccessState() {
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
-            newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
-            commentRepository = FakeCommentRepository()
+        val viewModel = createViewModel(
+            newsRepository = FakeNewsRepository(),
+            profileRepository = FakeProfileRepository()
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -142,47 +81,13 @@ class NewsViewModelTest {
             displayName = "Test User"
         )
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(post)
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = profile
-
-            override fun getProfile(userId: String): Profile? {
-                return profile.takeIf { it.userId == userId }
-            }
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
-            newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
-            commentRepository = FakeCommentRepository()
+        val viewModel = createViewModel(
+            newsRepository = FakeNewsRepository(
+                activePosts = listOf(post)
+            ),
+            profileRepository = FakeProfileRepository(
+                currentProfile = profile
+            )
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -208,47 +113,13 @@ class NewsViewModelTest {
             displayName = "Other User"
         )
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(post)
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = profile
-
-            override fun getProfile(userId: String): Profile? {
-                return profile.takeIf { it.userId == userId }
-            }
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
-            newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
-            commentRepository = FakeCommentRepository()
+        val viewModel = createViewModel(
+            newsRepository = FakeNewsRepository(
+                activePosts = listOf(post)
+            ),
+            profileRepository = FakeProfileRepository(
+                currentProfile = profile
+            )
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -296,65 +167,17 @@ class NewsViewModelTest {
             )
         )
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(post)
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val reactionRepository = object : ReactionRepository {
-            override fun getReactions(postId: String): List<Reaction> {
-                return reactions.filter { reaction ->
-                    reaction.postId == postId
-                }
-            }
-
-            override fun saveReaction(reaction: Reaction) {
-            }
-        }
-
-        val commentRepository = object : CommentRepository {
-            override fun getComments(postId: String): List<Comment> {
-                return comments.filter { comment ->
-                    comment.postId == postId
-                }
-            }
-
-            override fun saveComment(comment: Comment) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
-            newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = reactionRepository,
-            commentRepository = commentRepository
+        val viewModel = createViewModel(
+            newsRepository = FakeNewsRepository(
+                activePosts = listOf(post)
+            ),
+            profileRepository = FakeProfileRepository(),
+            reactionRepository = FakeReactionRepository(
+                reactions = reactions
+            ),
+            commentRepository = FakeCommentRepository(
+                comments = comments
+            )
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -375,43 +198,13 @@ class NewsViewModelTest {
 
     @Test
     fun loadPosts_whenRepositoryFails_returnsErrorState() {
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                error("Test error")
-            }
+        val newsRepository = FakeNewsRepository(
+            loadError = IllegalStateException("Test error")
+        )
 
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
+        val viewModel = createViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
-            commentRepository = FakeCommentRepository()
+            profileRepository = FakeProfileRepository()
         )
 
         viewModel.onAction(NewsAction.Load)
@@ -432,46 +225,11 @@ class NewsViewModelTest {
             caption = "Created post"
         )
 
-        val savedPosts = mutableListOf<Post>()
+        val newsRepository = FakeNewsRepository()
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return savedPosts.toList()
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-                savedPosts.add(post)
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
+        val viewModel = createViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
-            commentRepository = FakeCommentRepository()
+            profileRepository = FakeProfileRepository()
         )
 
         viewModel.onAction(
@@ -480,7 +238,7 @@ class NewsViewModelTest {
 
         assertEquals(
             listOf(post),
-            savedPosts
+            newsRepository.getPosts()
         )
 
         assertEquals(
@@ -504,44 +262,11 @@ class NewsViewModelTest {
             caption = "Failed post"
         )
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-                error("Test save error")
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
-            newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
-            commentRepository = FakeCommentRepository()
+        val viewModel = createViewModel(
+            newsRepository = FakeNewsRepository(
+                saveError = IllegalStateException("Test save error")
+            ),
+            profileRepository = FakeProfileRepository()
         )
 
         viewModel.onAction(
@@ -572,52 +297,11 @@ class NewsViewModelTest {
             createdAt = 2000L
         )
 
-        val savedPosts = mutableListOf<Post>()
+        val newsRepository = FakeNewsRepository()
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return savedPosts.sortedByDescending { post ->
-                    post.createdAt
-                }
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-                savedPosts.add(post)
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun getProfile(userId: String): Profile? {
-                return null
-            }
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val viewModel = NewsViewModel(
+        val viewModel = createViewModel(
             newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
-            commentRepository = FakeCommentRepository()
+            profileRepository = FakeProfileRepository()
         )
 
         viewModel.onAction(
@@ -659,55 +343,14 @@ class NewsViewModelTest {
             userId = "user-2"
         )
 
-        val savedReactions = mutableListOf<Reaction>()
+        val reactionRepository = FakeReactionRepository()
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(post)
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val reactionRepository = object : ReactionRepository {
-            override fun getReactions(postId: String): List<Reaction> {
-                return savedReactions.filter { it.postId == postId }
-            }
-
-            override fun saveReaction(reaction: Reaction) {
-                savedReactions.add(reaction)
-            }
-        }
-
-        val viewModel = NewsViewModel(
-            newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = reactionRepository,
-            commentRepository = FakeCommentRepository()
+        val viewModel = createViewModel(
+            newsRepository = FakeNewsRepository(
+                activePosts = listOf(post)
+            ),
+            profileRepository = FakeProfileRepository(),
+            reactionRepository = reactionRepository
         )
 
         viewModel.onAction(
@@ -716,7 +359,7 @@ class NewsViewModelTest {
 
         assertEquals(
             listOf(reaction),
-            savedReactions
+            reactionRepository.getReactions(post.id)
         )
 
         val state = viewModel.uiState.value as NewsUiState.Success
@@ -742,54 +385,13 @@ class NewsViewModelTest {
             text = "Nice post"
         )
 
-        val savedComments = mutableListOf<Comment>()
+        val commentRepository = FakeCommentRepository()
 
-        val newsRepository = object : NewsRepository {
-            override fun getPosts(): List<Post> {
-                return listOf(post)
-            }
-
-            override fun getBinPosts(): List<Post> {
-                return emptyList()
-            }
-
-            override fun savePost(post: Post) {
-            }
-
-            override fun updatePost(post: Post) {
-            }
-
-            override fun movePostToBin(postId: String) {
-            }
-
-            override fun restorePost(postId: String) {
-            }
-
-            override fun movePostToAsh(postId: String) {
-            }
-        }
-
-        val profileRepository = object : ProfileRepository {
-            override fun getProfile() = null
-
-            override fun saveProfile(profile: Profile) {
-            }
-        }
-
-        val commentRepository = object : CommentRepository {
-            override fun getComments(postId: String): List<Comment> {
-                return savedComments.filter { it.postId == postId }
-            }
-
-            override fun saveComment(comment: Comment) {
-                savedComments.add(comment)
-            }
-        }
-
-        val viewModel = NewsViewModel(
-            newsRepository = newsRepository,
-            profileRepository = profileRepository,
-            reactionRepository = FakeReactionRepository(),
+        val viewModel = createViewModel(
+            newsRepository = FakeNewsRepository(
+                activePosts = listOf(post)
+            ),
+            profileRepository = FakeProfileRepository(),
             commentRepository = commentRepository
         )
 
@@ -799,7 +401,7 @@ class NewsViewModelTest {
 
         assertEquals(
             listOf(comment),
-            savedComments
+            commentRepository.getComments(post.id)
         )
 
         val state = viewModel.uiState.value as NewsUiState.Success
@@ -810,23 +412,440 @@ class NewsViewModelTest {
         )
     }
 
-    private class FakeReactionRepository : ReactionRepository {
+    @Test
+    fun movePostToBin_ownerActivePost_movesToBinAndReloads() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
 
-        override fun getReactions(postId: String): List<Reaction> {
+        val newsRepository = FakeNewsRepository(
+            activePosts = listOf(post)
+        )
+
+        val viewModel = createViewModel(
+            newsRepository = newsRepository,
+            profileRepository = FakeProfileRepository(
+                currentProfile = Profile(
+                    userId = "user-1",
+                    displayName = "Owner"
+                )
+            )
+        )
+
+        viewModel.onAction(
+            NewsAction.MovePostToBin(post.id)
+        )
+
+        assertEquals(
+            PostLifecycleState.BIN,
+            newsRepository.getBinPosts().single().lifecycleState
+        )
+
+        assertEquals(
+            NewsUiState.Success(
+                posts = emptyList()
+            ),
+            viewModel.uiState.value
+        )
+    }
+
+    @Test
+    fun movePostToBin_nonOwner_doesNotChangePost() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
+
+        val newsRepository = FakeNewsRepository(
+            activePosts = listOf(post)
+        )
+
+        val viewModel = createViewModel(
+            newsRepository = newsRepository,
+            profileRepository = FakeProfileRepository(
+                currentProfile = Profile(
+                    userId = "user-2",
+                    displayName = "Other User"
+                )
+            )
+        )
+
+        viewModel.onAction(
+            NewsAction.MovePostToBin(post.id)
+        )
+
+        assertEquals(
+            listOf(post),
+            newsRepository.getPosts()
+        )
+
+        assertEquals(
+            emptyList<Post>(),
+            newsRepository.getBinPosts()
+        )
+    }
+
+    @Test
+    fun restorePost_ownerBinPost_restoresToActiveAndReloads() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post",
+            lifecycleState = PostLifecycleState.BIN,
+            deletedAt = 2000L
+        )
+
+        val newsRepository = FakeNewsRepository(
+            binPosts = listOf(post)
+        )
+
+        val viewModel = createViewModel(
+            newsRepository = newsRepository,
+            profileRepository = FakeProfileRepository(
+                currentProfile = Profile(
+                    userId = "user-1",
+                    displayName = "Owner"
+                )
+            )
+        )
+
+        viewModel.onAction(
+            NewsAction.RestorePost(post.id)
+        )
+
+        assertEquals(
+            PostLifecycleState.ACTIVE,
+            newsRepository.getPosts().single().lifecycleState
+        )
+
+        assertEquals(
+            NewsUiState.Success(
+                posts = listOf(
+                    NewsPostUiModel(
+                        post = post.copy(
+                            lifecycleState = PostLifecycleState.ACTIVE,
+                            deletedAt = null
+                        ),
+                        profile = null
+                    )
+                )
+            ),
+            viewModel.uiState.value
+        )
+    }
+
+    @Test
+    fun restorePost_nonOwner_doesNotChangePost() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post",
+            lifecycleState = PostLifecycleState.BIN,
+            deletedAt = 2000L
+        )
+
+        val newsRepository = FakeNewsRepository(
+            binPosts = listOf(post)
+        )
+
+        val viewModel = createViewModel(
+            newsRepository = newsRepository,
+            profileRepository = FakeProfileRepository(
+                currentProfile = Profile(
+                    userId = "user-2",
+                    displayName = "Other User"
+                )
+            )
+        )
+
+        viewModel.onAction(
+            NewsAction.RestorePost(post.id)
+        )
+
+        assertEquals(
+            listOf(post),
+            newsRepository.getBinPosts()
+        )
+    }
+
+    @Test
+    fun movePostToAsh_ownerActivePost_movesToAshAndReloads() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
+
+        val newsRepository = FakeNewsRepository(
+            activePosts = listOf(post)
+        )
+
+        val viewModel = createViewModel(
+            newsRepository = newsRepository,
+            profileRepository = FakeProfileRepository(
+                currentProfile = Profile(
+                    userId = "user-1",
+                    displayName = "Owner"
+                )
+            )
+        )
+
+        viewModel.onAction(
+            NewsAction.MovePostToAsh(post.id)
+        )
+
+        assertEquals(
+            PostLifecycleState.ASH,
+            newsRepository.getAshPosts().single().lifecycleState
+        )
+
+        assertEquals(
+            NewsUiState.Success(
+                posts = emptyList()
+            ),
+            viewModel.uiState.value
+        )
+    }
+
+    @Test
+    fun movePostToAsh_nonOwner_doesNotChangePost() {
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Test post"
+        )
+
+        val newsRepository = FakeNewsRepository(
+            activePosts = listOf(post)
+        )
+
+        val viewModel = createViewModel(
+            newsRepository = newsRepository,
+            profileRepository = FakeProfileRepository(
+                currentProfile = Profile(
+                    userId = "user-2",
+                    displayName = "Other User"
+                )
+            )
+        )
+
+        viewModel.onAction(
+            NewsAction.MovePostToAsh(post.id)
+        )
+
+        assertEquals(
+            listOf(post),
+            newsRepository.getPosts()
+        )
+
+        assertEquals(
+            emptyList<Post>(),
+            newsRepository.getAshPosts()
+        )
+    }
+
+    private fun createViewModel(
+        newsRepository: NewsRepository,
+        profileRepository: ProfileRepository,
+        reactionRepository: ReactionRepository = FakeReactionRepository(),
+        commentRepository: CommentRepository = FakeCommentRepository()
+    ): NewsViewModel {
+        return NewsViewModel(
+            newsRepository = newsRepository,
+            profileRepository = profileRepository,
+            reactionRepository = reactionRepository,
+            commentRepository = commentRepository,
+            mediaLibrary = FakeMediaLibrary()
+        )
+    }
+
+    private class FakeMediaLibrary : MediaLibrary {
+
+        override fun add(asset: MediaAsset) {
+        }
+
+        override fun getById(id: String): MediaAsset? {
+            return null
+        }
+
+        override fun getByOwner(ownerId: String): List<MediaAsset> {
             return emptyList()
         }
 
-        override fun saveReaction(reaction: Reaction) {
+        override fun getAll(): List<MediaAsset> {
+            return emptyList()
+        }
+
+        override fun delete(id: String) {
         }
     }
 
-    private class FakeCommentRepository : CommentRepository {
+    private class FakeNewsRepository(
+        activePosts: List<Post> = emptyList(),
+        binPosts: List<Post> = emptyList(),
+        private val loadError: Throwable? = null,
+        private val saveError: Throwable? = null
+    ) : NewsRepository {
+
+        private val posts = mutableListOf<Post>()
+
+        init {
+            posts.addAll(activePosts)
+            posts.addAll(binPosts)
+        }
+
+        private val ashPosts: List<Post>
+            get() = posts.filter { post ->
+                post.lifecycleState == PostLifecycleState.ASH
+            }
+
+        override fun getPosts(): List<Post> {
+            loadError?.let { throw it }
+
+            return posts
+                .filter { post ->
+                    post.lifecycleState == PostLifecycleState.ACTIVE
+                }
+                .sortedByDescending { post ->
+                    post.createdAt
+                }
+        }
+
+        override fun getBinPosts(): List<Post> {
+            return posts
+                .filter { post ->
+                    post.lifecycleState == PostLifecycleState.BIN
+                }
+                .sortedByDescending { post ->
+                    post.deletedAt ?: post.createdAt
+                }
+        }
+
+        override fun savePost(post: Post) {
+            saveError?.let { throw it }
+
+            posts.add(
+                post.copy(
+                    lifecycleState = PostLifecycleState.ACTIVE,
+                    deletedAt = null
+                )
+            )
+        }
+
+        override fun updatePost(post: Post) {
+            val index = posts.indexOfFirst { existingPost ->
+                existingPost.id == post.id
+            }
+
+            if (index >= 0) {
+                posts[index] = post
+            }
+        }
+
+        override fun movePostToBin(postId: String) {
+            val index = posts.indexOfFirst { post ->
+                post.id == postId
+            }
+
+            if (index >= 0) {
+                posts[index] = posts[index].copy(
+                    lifecycleState = PostLifecycleState.BIN,
+                    deletedAt = System.currentTimeMillis()
+                )
+            }
+        }
+
+        override fun restorePost(postId: String) {
+            val index = posts.indexOfFirst { post ->
+                post.id == postId
+            }
+
+            if (index >= 0) {
+                posts[index] = posts[index].copy(
+                    lifecycleState = PostLifecycleState.ACTIVE,
+                    deletedAt = null
+                )
+            }
+        }
+
+        override fun movePostToAsh(postId: String) {
+            val index = posts.indexOfFirst { post ->
+                post.id == postId
+            }
+
+            if (index >= 0) {
+                posts[index] = posts[index].copy(
+                    lifecycleState = PostLifecycleState.ASH,
+                    deletedAt = System.currentTimeMillis()
+                )
+            }
+        }
+
+        fun getAshPosts(): List<Post> {
+            return ashPosts
+        }
+    }
+
+    private class FakeProfileRepository(
+        private val currentProfile: Profile? = null
+    ) : ProfileRepository {
+
+        override fun getProfile(): Profile? {
+            return currentProfile
+        }
+
+        override fun getProfile(userId: String): Profile? {
+            return currentProfile?.takeIf { profile ->
+                profile.userId == userId
+            }
+        }
+
+        override fun saveProfile(profile: Profile) {
+        }
+    }
+
+    private class FakeReactionRepository(
+        private val reactions: MutableList<Reaction> = mutableListOf()
+    ) : ReactionRepository {
+
+        constructor(
+            reactions: List<Reaction>
+        ) : this(
+            reactions.toMutableList()
+        )
+
+        override fun getReactions(postId: String): List<Reaction> {
+            return reactions.filter { reaction ->
+                reaction.postId == postId
+            }
+        }
+
+        override fun saveReaction(reaction: Reaction) {
+            reactions.add(reaction)
+        }
+    }
+
+    private class FakeCommentRepository(
+        private val comments: MutableList<Comment> = mutableListOf()
+    ) : CommentRepository {
+
+        constructor(
+            comments: List<Comment>
+        ) : this(
+            comments.toMutableList()
+        )
 
         override fun getComments(postId: String): List<Comment> {
-            return emptyList()
+            return comments.filter { comment ->
+                comment.postId == postId
+            }
         }
 
         override fun saveComment(comment: Comment) {
+            comments.add(comment)
         }
     }
 }
