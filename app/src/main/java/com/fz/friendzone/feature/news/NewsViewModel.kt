@@ -32,6 +32,7 @@ class NewsViewModel(
         when (action) {
             NewsAction.Load -> loadPosts()
             is NewsAction.CreatePost -> createPost(action.post)
+            is NewsAction.UpdatePost -> updatePost(action.post)
             is NewsAction.SaveReaction -> saveReaction(action.reaction)
             is NewsAction.SaveComment -> saveComment(action.comment)
         }
@@ -40,6 +41,28 @@ class NewsViewModel(
     private fun createPost(post: Post) {
         runCatching {
             newsRepository.savePost(post)
+        }.onSuccess {
+            loadPosts()
+        }.onFailure {
+            _uiState.value = NewsUiState.Error(
+                messageResId = R.string.news_load_error
+            )
+        }
+    }
+
+    private fun updatePost(post: Post) {
+        val currentUserId = currentProfile?.userId
+
+        if (currentUserId.isNullOrBlank()) {
+            return
+        }
+
+        if (post.userId != currentUserId) {
+            return
+        }
+
+        runCatching {
+            newsRepository.updatePost(post)
         }.onSuccess {
             loadPosts()
         }.onFailure {
