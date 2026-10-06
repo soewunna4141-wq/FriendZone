@@ -154,6 +154,9 @@ class NewsScreenTest {
             override fun savePost(post: Post) {
                 savedPosts.add(post)
             }
+
+            override fun updatePost(post: Post) {
+            }
         }
 
         val reactionRepository = FakeReactionRepository()
@@ -229,6 +232,9 @@ class NewsScreenTest {
 
             override fun savePost(post: Post) {
             }
+
+            override fun updatePost(post: Post) {
+            }
         }
 
         composeTestRule.setContent {
@@ -295,6 +301,9 @@ class NewsScreenTest {
 
             override fun savePost(post: Post) {
             }
+
+            override fun updatePost(post: Post) {
+            }
         }
 
         composeTestRule.setContent {
@@ -352,6 +361,9 @@ class NewsScreenTest {
             }
 
             override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
             }
         }
 
@@ -436,6 +448,9 @@ class NewsScreenTest {
 
             override fun savePost(post: Post) {
             }
+
+            override fun updatePost(post: Post) {
+            }
         }
 
         composeTestRule.setContent {
@@ -462,6 +477,9 @@ class NewsScreenTest {
         }
 
         override fun savePost(post: Post) {
+        }
+
+        override fun updatePost(post: Post) {
         }
     }
 
