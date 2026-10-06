@@ -1,7 +1,8 @@
 package com.fz.friendzone.core.media
 
-import android.app.Activity
+import android.content.Context
 import androidx.activity.result.ActivityResultCaller
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,10 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import androidx.camera.view.PreviewView
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
 fun CameraCaptureScreen(
@@ -70,29 +72,98 @@ fun CameraCaptureScreen(
         onStateChanged(newState)
     }
 
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        if (context is Activity) {
-            cameraPermissionRequester.request {
+    fun startCamera() {
+        cameraManager.startCamera(
+            onReady = {
                 updateState(
-                    CameraCaptureUiState.RequestingPermission
+                    CameraCaptureUiState.Ready
+                )
+            },
+            onError = { throwable ->
+                updateState(
+                    CameraCaptureUiState.Error(
+                        throwable.message
+                            ?: "Unable to start camera"
+                    )
+                )
+            }
+        )
+    }
+
+    fun requestMicrophoneAndStartVideo() {
+        if (MicrophonePermission.isGranted(context)) {
+            updateState(
+                CameraCaptureUiState.Recording
+            )
+
+            cameraManager.startVideoCapture { uri ->
+                if (uri != null) {
+                    updateState(
+                        CameraCaptureUiState.Captured(
+                            uri = uri,
+                            isVideo = true
+                        )
+                    )
+                } else {
+                    updateState(
+                        CameraCaptureUiState.Error(
+                            "Video capture failed"
+                        )
+                    )
+                }
+            }
+
+            return
+        }
+
+        updateState(
+            CameraCaptureUiState.RequestingPermission
+        )
+
+        microphonePermissionRequester.request { granted ->
+            if (granted) {
+                updateState(
+                    CameraCaptureUiState.Recording
                 )
 
-                cameraManager.startCamera(
-                    onReady = {
+                cameraManager.startVideoCapture { uri ->
+                    if (uri != null) {
                         updateState(
-                            CameraCaptureUiState.Ready
+                            CameraCaptureUiState.Captured(
+                                uri = uri,
+                                isVideo = true
+                            )
                         )
-                    },
-                    onError = { throwable ->
+                    } else {
                         updateState(
                             CameraCaptureUiState.Error(
-                                throwable.message
-                                    ?: "Unable to start camera"
+                                "Video capture failed"
                             )
                         )
                     }
+                }
+            } else {
+                updateState(
+                    CameraCaptureUiState.Error(
+                        "Microphone permission denied. Video recording requires microphone permission."
+                    )
                 )
             }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (CameraPermission.isGranted(context)) {
+            updateState(
+                CameraCaptureUiState.Ready
+            )
+            startCamera()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            cameraManager.stopVideoCapture()
         }
     }
 
@@ -106,12 +177,39 @@ fun CameraCaptureScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        when (val currentState = state) {
-            CameraCaptureUiState.Idle -> Unit
+        when (state) {
+            CameraCaptureUiState.Idle -> {
+                Button(
+                    onClick = {
+                        updateState(
+                            CameraCaptureUiState.RequestingPermission
+                        )
+
+                        cameraPermissionRequester.request { granted ->
+                            if (granted) {
+                                startCamera()
+                            } else {
+                                updateState(
+                                    CameraCaptureUiState.Error(
+                                        "Camera permission denied"
+                                    )
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(16.dp)
+                ) {
+                    Text("Allow Camera")
+                }
+            }
 
             CameraCaptureUiState.RequestingPermission -> {
                 Text(
-                    text = "Opening camera...",
+                    text = "Requesting camera or microphone permission",
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(16.dp)
@@ -133,43 +231,30 @@ fun CameraCaptureScreen(
                             cameraManager.captureImage { uri ->
                                 if (uri != null) {
                                     updateState(
-                                        CameraCaptureUiState.Captured(uri)
+                                        CameraCaptureUiState.Captured(
+                                            uri = uri,
+                                            isVideo = false
+                                        )
                                     )
                                 } else {
                                     updateState(
                                         CameraCaptureUiState.Error(
-                                            "Unable to capture photo"
+                                            "Photo capture failed"
                                         )
                                     )
                                 }
                             }
-                        }
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Take Photo")
                     }
 
                     Button(
                         onClick = {
-                            microphonePermissionRequester.request {
-                                cameraManager.startVideoCapture { uri ->
-                                    if (uri != null) {
-                                        updateState(
-                                            CameraCaptureUiState.Captured(uri)
-                                        )
-                                    } else {
-                                        updateState(
-                                            CameraCaptureUiState.Error(
-                                                "Unable to capture video"
-                                            )
-                                        )
-                                    }
-                                }
-
-                                updateState(
-                                    CameraCaptureUiState.Recording
-                                )
-                            }
-                        }
+                            requestMicrophoneAndStartVideo()
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Start Video")
                     }
@@ -183,6 +268,7 @@ fun CameraCaptureScreen(
                     },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
                         .navigationBarsPadding()
                         .padding(16.dp)
                 ) {
@@ -193,10 +279,13 @@ fun CameraCaptureScreen(
             is CameraCaptureUiState.Captured -> {
                 Button(
                     onClick = {
-                        updateState(currentState)
+                        updateState(
+                            CameraCaptureUiState.Ready
+                        )
                     },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
                         .navigationBarsPadding()
                         .padding(16.dp)
                 ) {
@@ -205,46 +294,19 @@ fun CameraCaptureScreen(
             }
 
             is CameraCaptureUiState.Error -> {
-                Column(
+                Button(
+                    onClick = {
+                        updateState(
+                            CameraCaptureUiState.Idle
+                        )
+                    },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .navigationBarsPadding()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = currentState.message,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    Button(
-                        onClick = {
-                            updateState(
-                                CameraCaptureUiState.RequestingPermission
-                            )
-
-                            cameraPermissionRequester.request {
-                                cameraManager.startCamera(
-                                    onReady = {
-                                        updateState(
-                                            CameraCaptureUiState.Ready
-                                        )
-                                    },
-                                    onError = { throwable ->
-                                        updateState(
-                                            CameraCaptureUiState.Error(
-                                                throwable.message
-                                                    ?: "Unable to start camera"
-                                            )
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    ) {
-                        Text("Try Again")
-                    }
+                    Text("Try Again")
                 }
             }
         }
