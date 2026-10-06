@@ -63,12 +63,23 @@ class NewsViewModel(
             return
         }
 
-        if (post.userId != currentUserId) {
+        val existingPost = findPost(post.id) ?: return
+
+        if (existingPost.userId != currentUserId) {
             return
         }
 
+        val updatedPost = existingPost.copy(
+            caption = post.caption,
+            mediaAssetId = post.mediaAssetId,
+            mediaUrl = post.mediaUrl,
+            mediaType = post.mediaType,
+            lifecycleState = existingPost.lifecycleState,
+            deletedAt = existingPost.deletedAt
+        )
+
         runCatching {
-            newsRepository.updatePost(post)
+            newsRepository.updatePost(updatedPost)
         }.onSuccess {
             loadPosts()
         }.onFailure {
@@ -148,9 +159,9 @@ class NewsViewModel(
         return (
             newsRepository.getPosts() +
                 newsRepository.getBinPosts()
-            ).firstOrNull { post ->
-                post.id == postId
-            }
+        ).firstOrNull { post ->
+            post.id == postId
+        }
     }
 
     private fun isCurrentUserOwner(post: Post): Boolean {
