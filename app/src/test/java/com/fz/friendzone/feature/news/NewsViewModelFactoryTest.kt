@@ -41,7 +41,24 @@ class NewsViewModelFactoryTest {
                 return emptyList()
             }
 
-            override fun savePost(post: Post) {}
+            override fun getBinPosts(): List<Post> {
+                return emptyList()
+            }
+
+            override fun savePost(post: Post) {
+            }
+
+            override fun updatePost(post: Post) {
+            }
+
+            override fun movePostToBin(postId: String) {
+            }
+
+            override fun restorePost(postId: String) {
+            }
+
+            override fun movePostToAsh(postId: String) {
+            }
         }
 
         val profileRepository = object : ProfileRepository {
@@ -53,7 +70,8 @@ class NewsViewModelFactoryTest {
                 return null
             }
 
-            override fun saveProfile(profile: Profile) {}
+            override fun saveProfile(profile: Profile) {
+            }
         }
 
         val reactionRepository = object : ReactionRepository {
@@ -61,7 +79,8 @@ class NewsViewModelFactoryTest {
                 return emptyList()
             }
 
-            override fun saveReaction(reaction: Reaction) {}
+            override fun saveReaction(reaction: Reaction) {
+            }
         }
 
         val commentRepository = object : CommentRepository {
@@ -69,7 +88,8 @@ class NewsViewModelFactoryTest {
                 return emptyList()
             }
 
-            override fun saveComment(comment: Comment) {}
+            override fun saveComment(comment: Comment) {
+            }
         }
 
         return NewsViewModelFactory(
