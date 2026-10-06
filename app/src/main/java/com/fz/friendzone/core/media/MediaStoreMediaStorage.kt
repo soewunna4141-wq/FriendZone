@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.webkit.MimeTypeMap
 
 class MediaStoreMediaStorage(
     private val contentResolver: ContentResolver
@@ -18,6 +19,12 @@ class MediaStoreMediaStorage(
     ) {
         val mimeType =
             contentResolver.getType(source)
+                ?: MimeTypeMap.getSingleton()
+                    .getMimeTypeFromExtension(
+                        MimeTypeMap.getFileExtensionFromUrl(
+                            source.toString()
+                        )
+                    )
                 ?: "application/octet-stream"
 
         val isVideo = mimeType.startsWith("video/")
