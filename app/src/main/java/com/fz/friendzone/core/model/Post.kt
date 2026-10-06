@@ -6,6 +6,12 @@ enum class PostMediaType {
     VIDEO
 }
 
+enum class PostLifecycleState {
+    ACTIVE,
+    BIN,
+    ASH
+}
+
 data class Post(
     val id: String,
     val userId: String,
@@ -14,5 +20,7 @@ data class Post(
     @Deprecated("Use mediaAssetId to reference media through MediaLibrary.")
     val mediaUrl: String? = null,
     val mediaType: PostMediaType = PostMediaType.TEXT,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val lifecycleState: PostLifecycleState = PostLifecycleState.ACTIVE,
+    val deletedAt: Long? = null
 )
