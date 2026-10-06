@@ -14,4 +14,8 @@ class NewsRepositoryImpl(
     override fun savePost(post: Post) {
         localDataSource.savePost(post)
     }
+
+    override fun updatePost(post: Post) {
+        localDataSource.updatePost(post)
+    }
 }
