@@ -16,6 +16,18 @@ sealed interface NewsAction {
         val post: Post
     ) : NewsAction
 
+    data class MovePostToBin(
+        val postId: String
+    ) : NewsAction
+
+    data class RestorePost(
+        val postId: String
+    ) : NewsAction
+
+    data class MovePostToAsh(
+        val postId: String
+    ) : NewsAction
+
     data class SaveReaction(
         val reaction: Reaction
     ) : NewsAction
