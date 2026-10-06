@@ -1,7 +1,9 @@
 package com.fz.friendzone.feature.news
 
 import androidx.lifecycle.ViewModel
+import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Comment
+import com.fz.friendzone.core.model.MediaAsset
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
@@ -37,6 +39,7 @@ class NewsViewModelFactoryTest {
 
     private fun createFactory(): NewsViewModelFactory {
         val newsRepository = object : NewsRepository {
+
             override fun getPosts(): List<Post> {
                 return emptyList()
             }
@@ -62,6 +65,7 @@ class NewsViewModelFactoryTest {
         }
 
         val profileRepository = object : ProfileRepository {
+
             override fun getProfile(): Profile? {
                 return null
             }
@@ -75,6 +79,7 @@ class NewsViewModelFactoryTest {
         }
 
         val reactionRepository = object : ReactionRepository {
+
             override fun getReactions(postId: String): List<Reaction> {
                 return emptyList()
             }
@@ -84,6 +89,7 @@ class NewsViewModelFactoryTest {
         }
 
         val commentRepository = object : CommentRepository {
+
             override fun getComments(postId: String): List<Comment> {
                 return emptyList()
             }
@@ -92,11 +98,33 @@ class NewsViewModelFactoryTest {
             }
         }
 
+        val mediaLibrary = object : MediaLibrary {
+
+            override fun add(asset: MediaAsset) {
+            }
+
+            override fun getById(id: String): MediaAsset? {
+                return null
+            }
+
+            override fun getByOwner(ownerId: String): List<MediaAsset> {
+                return emptyList()
+            }
+
+            override fun getAll(): List<MediaAsset> {
+                return emptyList()
+            }
+
+            override fun delete(id: String) {
+            }
+        }
+
         return NewsViewModelFactory(
             newsRepository = newsRepository,
             profileRepository = profileRepository,
             reactionRepository = reactionRepository,
-            commentRepository = commentRepository
+            commentRepository = commentRepository,
+            mediaLibrary = mediaLibrary
         )
     }
 }
