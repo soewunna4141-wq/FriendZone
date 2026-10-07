@@ -9,11 +9,15 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Comment
+import com.fz.friendzone.core.model.Follow
+import com.fz.friendzone.core.model.Friend
 import com.fz.friendzone.core.model.MediaAsset
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.CommentRepository
+import com.fz.friendzone.data.repository.FollowRepository
+import com.fz.friendzone.data.repository.FriendRepository
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReactionRepository
@@ -26,6 +30,9 @@ class NewsScreenTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    private val friendRepository = FakeFriendRepository()
+    private val followRepository = FakeFollowRepository()
 
     @Test
     fun newsScreen_withNoPosts_showsEmptyState() {
@@ -41,7 +48,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -77,7 +86,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -115,7 +126,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -182,7 +195,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -269,7 +284,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -351,7 +368,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -425,7 +444,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -524,7 +545,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -562,7 +585,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -622,7 +647,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -660,7 +687,9 @@ class NewsScreenTest {
                 profileRepository = profileRepository,
                 reactionRepository = reactionRepository,
                 commentRepository = commentRepository,
-                mediaLibrary = mediaLibrary
+                mediaLibrary = mediaLibrary,
+                friendRepository = friendRepository,
+                followRepository = followRepository
             )
         }
 
@@ -717,6 +746,42 @@ class NewsScreenTest {
         }
 
         override fun saveProfile(profile: Profile) {
+        }
+    }
+
+    private class FakeFriendRepository : FriendRepository {
+
+        private val friends = mutableListOf<Friend>()
+
+        override fun getFriends(userId: String): List<Friend> {
+            return friends.filter { friend ->
+                friend.userId == userId
+            }
+        }
+
+        override fun saveFriend(friend: Friend) {
+            friends.add(friend)
+        }
+    }
+
+    private class FakeFollowRepository : FollowRepository {
+
+        private val follows = mutableListOf<Follow>()
+
+        override fun getFollowing(followerId: String): List<Follow> {
+            return follows.filter { follow ->
+                follow.followerId == followerId
+            }
+        }
+
+        override fun getFollowers(followingId: String): List<Follow> {
+            return follows.filter { follow ->
+                follow.followingId == followingId
+            }
+        }
+
+        override fun saveFollow(follow: Follow) {
+            follows.add(follow)
         }
     }
 
