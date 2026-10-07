@@ -1,6 +1,7 @@
 package com.fz.friendzone.feature.news
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -531,6 +532,152 @@ class NewsScreenTest {
         composeTestRule.onNodeWithText(
             "Nice post"
         ).assertIsDisplayed()
+    }
+
+    @Test
+    fun ownerPostMenu_showsOwnerActions() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Owner"
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Owner post"
+        )
+
+        val profileRepository = FakeProfileRepository(
+            profile = profile
+        )
+        val newsRepository = FakeNewsRepository(
+            posts = listOf(post)
+        )
+        val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository,
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
+            )
+        }
+
+        composeTestRule.onNodeWithText("⋮").performClick()
+
+        composeTestRule.onNodeWithText("Audience").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Edit").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Delete").assertIsDisplayed()
+    }
+
+    @Test
+    fun viewerPostMenu_showsOnlySave() {
+        val ownerProfile = Profile(
+            userId = "user-2",
+            displayName = "Owner"
+        )
+
+        val viewerProfile = Profile(
+            userId = "user-1",
+            displayName = "Viewer"
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-2",
+            caption = "Viewer post"
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return viewerProfile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return when (userId) {
+                    "user-1" -> viewerProfile
+                    "user-2" -> ownerProfile
+                    else -> null
+                }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = FakeNewsRepository(
+            posts = listOf(post)
+        )
+        val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository,
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
+            )
+        }
+
+        composeTestRule.onNodeWithText("⋮").performClick()
+
+        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Audience").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Edit").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Delete").assertDoesNotExist()
+    }
+
+    @Test
+    fun ownerDeleteMenu_showsBinAndAshActions() {
+        val profile = Profile(
+            userId = "user-1",
+            displayName = "Owner"
+        )
+
+        val post = Post(
+            id = "post-1",
+            userId = "user-1",
+            caption = "Delete me"
+        )
+
+        val profileRepository = FakeProfileRepository(
+            profile = profile
+        )
+        val newsRepository = FakeNewsRepository(
+            posts = listOf(post)
+        )
+        val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository,
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary
+            )
+        }
+
+        composeTestRule.onNodeWithText("⋮").performClick()
+        composeTestRule.onNodeWithText("Delete").performClick()
+
+        composeTestRule.onNodeWithText("Delete post").assertIsDisplayed()
+        composeTestRule.onNodeWithText(
+            "Choose what you want to do with this post."
+        ).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Move to Bin").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Move to Ash").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Cancel").assertIsDisplayed()
     }
 
     private class FakeNewsRepository(
