@@ -57,6 +57,8 @@ import com.fz.friendzone.core.model.PostMediaType
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.CommentRepository
+import com.fz.friendzone.data.repository.FollowRepository
+import com.fz.friendzone.data.repository.FriendRepository
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReactionRepository
@@ -70,7 +72,9 @@ fun NewsScreen(
     profileRepository: ProfileRepository,
     reactionRepository: ReactionRepository,
     commentRepository: CommentRepository,
-    mediaLibrary: MediaLibrary
+    mediaLibrary: MediaLibrary,
+    friendRepository: FriendRepository,
+    followRepository: FollowRepository
 ) {
     val viewModel: NewsViewModel = viewModel(
         factory = NewsViewModelFactory(
@@ -78,7 +82,9 @@ fun NewsScreen(
             profileRepository = profileRepository,
             reactionRepository = reactionRepository,
             commentRepository = commentRepository,
-            mediaLibrary = mediaLibrary
+            mediaLibrary = mediaLibrary,
+            friendRepository = friendRepository,
+            followRepository = followRepository
         )
     )
 
