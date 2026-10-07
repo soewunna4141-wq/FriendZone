@@ -12,6 +12,14 @@ enum class PostLifecycleState {
     ASH
 }
 
+enum class PostAudience {
+    PUBLIC,
+    FOLLOWERS,
+    FRIENDS_OF_FRIENDS,
+    FRIENDS,
+    PRIVATE
+}
+
 data class Post(
     val id: String,
     val userId: String,
@@ -20,6 +28,7 @@ data class Post(
     @Deprecated("Use mediaAssetId to reference media through MediaLibrary.")
     val mediaUrl: String? = null,
     val mediaType: PostMediaType = PostMediaType.TEXT,
+    val audience: PostAudience = PostAudience.PUBLIC,
     val createdAt: Long = System.currentTimeMillis(),
     val lifecycleState: PostLifecycleState = PostLifecycleState.ACTIVE,
     val deletedAt: Long? = null
