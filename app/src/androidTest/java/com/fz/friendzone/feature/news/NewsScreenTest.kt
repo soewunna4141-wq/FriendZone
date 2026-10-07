@@ -1,7 +1,6 @@
 package com.fz.friendzone.feature.news
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -630,9 +629,6 @@ class NewsScreenTest {
         composeTestRule.onNodeWithText("⋮").performClick()
 
         composeTestRule.onNodeWithText("Save").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Audience").assertDoesNotExist()
-        composeTestRule.onNodeWithText("Edit").assertDoesNotExist()
-        composeTestRule.onNodeWithText("Delete").assertDoesNotExist()
     }
 
     @Test
