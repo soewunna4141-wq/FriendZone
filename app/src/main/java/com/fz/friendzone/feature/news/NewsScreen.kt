@@ -15,12 +15,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -158,6 +163,16 @@ fun NewsScreen(
                             NewsAction.UpdatePost(post)
                         )
                     },
+                    onMovePostToBin = { postId ->
+                        viewModel.onAction(
+                            NewsAction.MovePostToBin(postId)
+                        )
+                    },
+                    onMovePostToAsh = { postId ->
+                        viewModel.onAction(
+                            NewsAction.MovePostToAsh(postId)
+                        )
+                    },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -230,6 +245,8 @@ private fun NewsPostList(
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit,
     onUpdatePost: (Post) -> Unit,
+    onMovePostToBin: (postId: String) -> Unit,
+    onMovePostToAsh: (postId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (posts.isEmpty()) {
@@ -266,7 +283,9 @@ private fun NewsPostList(
                 mediaLibrary = mediaLibrary,
                 onLikePost = onLikePost,
                 onSaveComment = onSaveComment,
-                onUpdatePost = onUpdatePost
+                onUpdatePost = onUpdatePost,
+                onMovePostToBin = onMovePostToBin,
+                onMovePostToAsh = onMovePostToAsh
             )
         }
     }
@@ -282,7 +301,9 @@ private fun NewsPostCard(
     mediaLibrary: MediaLibrary,
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit,
-    onUpdatePost: (Post) -> Unit
+    onUpdatePost: (Post) -> Unit,
+    onMovePostToBin: (postId: String) -> Unit,
+    onMovePostToAsh: (postId: String) -> Unit
 ) {
     var commentText by remember(post.id) {
         mutableStateOf("")
@@ -296,6 +317,14 @@ private fun NewsPostCard(
         mutableStateOf(post.caption)
     }
 
+    var isMenuExpanded by remember(post.id) {
+        mutableStateOf(false)
+    }
+
+    var showDeleteDialog by remember(post.id) {
+        mutableStateOf(false)
+    }
+
     val isOwner = !currentUserId.isNullOrBlank() &&
         currentUserId == post.userId
 
@@ -306,10 +335,80 @@ private fun NewsPostCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            if (profile != null) {
-                NewsAuthorHeader(
-                    profile = profile
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (profile != null) {
+                    NewsAuthorHeader(
+                        profile = profile,
+                        modifier = Modifier.weight(1f)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Box {
+                    TextButton(
+                        onClick = {
+                            isMenuExpanded = true
+                        }
+                    ) {
+                        Text(text = "⋮")
+                    }
+
+                    DropdownMenu(
+                        expanded = isMenuExpanded,
+                        onDismissRequest = {
+                            isMenuExpanded = false
+                        }
+                    ) {
+                        if (isOwner) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(text = "Audience")
+                                },
+                                onClick = {
+                                    isMenuExpanded = false
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = {
+                                    Text(text = "Edit")
+                                },
+                                onClick = {
+                                    isMenuExpanded = false
+                                    editedCaption = post.caption
+                                    isEditing = true
+                                }
+                            )
+                        }
+
+                        DropdownMenuItem(
+                            text = {
+                                Text(text = "Save")
+                            },
+                            onClick = {
+                                isMenuExpanded = false
+                            }
+                        )
+
+                        if (isOwner) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(text = "Delete")
+                                },
+                                onClick = {
+                                    isMenuExpanded = false
+                                    showDeleteDialog = true
+                                }
+                            )
+                        }
+                    }
+                }
             }
 
             if (isEditing && isOwner) {
@@ -351,7 +450,7 @@ private fun NewsPostCard(
                         Text(text = "Save")
                     }
 
-                    Button(
+                    OutlinedButton(
                         onClick = {
                             editedCaption = post.caption
                             isEditing = false
@@ -366,20 +465,6 @@ private fun NewsPostCard(
                     post = post,
                     mediaLibrary = mediaLibrary
                 )
-
-                if (isOwner) {
-                    Button(
-                        onClick = {
-                            editedCaption = post.caption
-                            isEditing = true
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                    ) {
-                        Text(text = "Edit")
-                    }
-                }
             }
 
             Button(
@@ -458,6 +543,52 @@ private fun NewsPostCard(
             }
         }
     }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+            },
+            title = {
+                Text(text = "Delete post")
+            },
+            text = {
+                Text(
+                    text = "Choose what you want to do with this post."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onMovePostToBin(post.id)
+                    }
+                ) {
+                    Text(text = "Move to Bin")
+                }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(
+                        onClick = {
+                            showDeleteDialog = false
+                            onMovePostToAsh(post.id)
+                        }
+                    ) {
+                        Text(text = "Move to Ash")
+                    }
+
+                    TextButton(
+                        onClick = {
+                            showDeleteDialog = false
+                        }
+                    ) {
+                        Text(text = "Cancel")
+                    }
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -485,9 +616,11 @@ private fun NewsCommentList(
 
 @Composable
 private fun NewsAuthorHeader(
-    profile: Profile
+    profile: Profile,
+    modifier: Modifier = Modifier
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         NewsAuthorAvatar(
@@ -523,7 +656,9 @@ private fun NewsPostContent(
         modifier = Modifier.padding(top = 6.dp)
     )
 
-    val mediaAsset = post.mediaAssetId?.let { mediaLibrary.getById(it) }
+    val mediaAsset = post.mediaAssetId?.let {
+        mediaLibrary.getById(it)
+    }
 
     if (mediaAsset != null) {
         NewsMediaContent(
@@ -649,7 +784,9 @@ private fun NewsAuthorAvatar(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(
