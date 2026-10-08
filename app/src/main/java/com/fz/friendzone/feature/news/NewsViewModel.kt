@@ -1,264 +1,345 @@
 package com.fz.friendzone.feature.news
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.fz.friendzone.R
+import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Comment
-import com.fz.friendzone.core.model.Friend
-import com.fz.friendzone.core.model.Follow
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.PostAudience
 import com.fz.friendzone.core.model.PostLifecycleState
 import com.fz.friendzone.core.model.Profile
+import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.CommentRepository
-import com.fz.friendzone.data.repository.FriendRepository
 import com.fz.friendzone.data.repository.FollowRepository
-import com.fz.friendzone.data.repository.PostRepository
-import com.fz.friendzone.feature.media.MediaLibrary
+import com.fz.friendzone.data.repository.FriendRepository
+import com.fz.friendzone.data.repository.NewsRepository
+import com.fz.friendzone.data.repository.ProfileRepository
+import com.fz.friendzone.data.repository.ReactionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 class NewsViewModel(
-    private val postRepository: PostRepository,
+    private val newsRepository: NewsRepository,
+    private val profileRepository: ProfileRepository,
+    private val reactionRepository: ReactionRepository,
     private val commentRepository: CommentRepository,
+    private val mediaLibrary: MediaLibrary,
     private val friendRepository: FriendRepository? = null,
-    private val followRepository: FollowRepository? = null,
-    private val mediaLibrary: MediaLibrary? = null,
-    private val currentUserId: String = ""
+    private val followRepository: FollowRepository? = null
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<NewsUiState>(NewsUiState.Loading)
+    private val _uiState = MutableStateFlow<NewsUiState>(
+        NewsUiState.Loading
+    )
+
     val uiState: StateFlow<NewsUiState> = _uiState.asStateFlow()
 
-    init {
-        loadPosts()
+    val currentProfile: Profile?
+        get() = profileRepository.getProfile()
+
+    fun onAction(action: NewsAction) {
+        when (action) {
+            NewsAction.Load -> loadPosts()
+
+            is NewsAction.CreatePost -> {
+                createPost(action.post)
+            }
+
+            is NewsAction.UpdatePost -> {
+                updatePost(action.post)
+            }
+
+            is NewsAction.MovePostToBin -> {
+                movePostToBin(action.postId)
+            }
+
+            is NewsAction.RestorePost -> {
+                restorePost(action.postId)
+            }
+
+            is NewsAction.MovePostToAsh -> {
+                movePostToAsh(action.postId)
+            }
+
+            is NewsAction.SaveReaction -> {
+                saveReaction(action.reaction)
+            }
+
+            is NewsAction.SaveComment -> {
+                saveComment(action.comment)
+            }
+        }
     }
 
-    fun loadPosts() {
-        viewModelScope.launch {
-            _uiState.value = NewsUiState.Loading
+    private fun createPost(post: Post) {
+        val currentUserId = currentProfile?.userId
 
-            try {
-                val posts = postRepository.getPosts()
-                    .filter { it.lifecycleState == PostLifecycleState.ACTIVE }
+        if (currentUserId.isNullOrBlank()) {
+            return
+        }
 
-                val visiblePosts = posts.mapNotNull { post ->
-                    val permissions = resolvePostPermissions(post)
+        if (post.userId != currentUserId) {
+            return
+        }
 
-                    if (!permissions.canView) {
-                        null
-                    } else {
-                        val profile = try {
-                            postRepository.getProfile(post.userId)
-                        } catch (_: Exception) {
-                            null
-                        }
+        runCatching {
+            newsRepository.savePost(post)
+        }.onSuccess {
+            loadPosts()
+        }.onFailure {
+            _uiState.value = NewsUiState.Error(
+                messageResId = R.string.news_load_error
+            )
+        }
+    }
 
-                        val comments = try {
-                            commentRepository.getComments(post.id)
-                        } catch (_: Exception) {
-                            emptyList()
-                        }
+    private fun updatePost(post: Post) {
+        val currentUserId = currentProfile?.userId
 
-                        NewsPostUiModel(
-                            post = post,
-                            profile = profile,
-                            reactionCount = 0,
-                            comments = comments,
-                            canView = permissions.canView,
-                            canLike = permissions.canLike,
-                            canComment = permissions.canComment,
-                            canShare = permissions.canShare,
-                            canSave = permissions.canSave,
-                            canManage = permissions.canManage
-                        )
-                    }
+        if (currentUserId.isNullOrBlank()) {
+            return
+        }
+
+        val existingPost = findPost(post.id) ?: return
+
+        if (existingPost.userId != currentUserId) {
+            return
+        }
+
+        val updatedPost = existingPost.copy(
+            caption = post.caption,
+            mediaAssetId = post.mediaAssetId,
+            mediaUrl = post.mediaUrl,
+            mediaType = post.mediaType,
+            audience = post.audience,
+            lifecycleState = existingPost.lifecycleState,
+            deletedAt = existingPost.deletedAt
+        )
+
+        runCatching {
+            newsRepository.updatePost(updatedPost)
+        }.onSuccess {
+            loadPosts()
+        }.onFailure {
+            _uiState.value = NewsUiState.Error(
+                messageResId = R.string.news_load_error
+            )
+        }
+    }
+
+    private fun movePostToBin(postId: String) {
+        val post = findPost(postId) ?: return
+
+        if (!isCurrentUserOwner(post)) {
+            return
+        }
+
+        if (post.lifecycleState != PostLifecycleState.ACTIVE) {
+            return
+        }
+
+        runCatching {
+            newsRepository.movePostToBin(postId)
+        }.onSuccess {
+            loadPosts()
+        }.onFailure {
+            _uiState.value = NewsUiState.Error(
+                messageResId = R.string.news_load_error
+            )
+        }
+    }
+
+    private fun restorePost(postId: String) {
+        val post = findPost(postId) ?: return
+
+        if (!isCurrentUserOwner(post)) {
+            return
+        }
+
+        if (post.lifecycleState != PostLifecycleState.BIN) {
+            return
+        }
+
+        runCatching {
+            newsRepository.restorePost(postId)
+        }.onSuccess {
+            loadPosts()
+        }.onFailure {
+            _uiState.value = NewsUiState.Error(
+                messageResId = R.string.news_load_error
+            )
+        }
+    }
+
+    private fun movePostToAsh(postId: String) {
+        val post = findPost(postId) ?: return
+
+        if (!isCurrentUserOwner(post)) {
+            return
+        }
+
+        if (post.lifecycleState != PostLifecycleState.ACTIVE) {
+            return
+        }
+
+        runCatching {
+            newsRepository.movePostToAsh(postId)
+        }.onSuccess {
+            loadPosts()
+        }.onFailure {
+            _uiState.value = NewsUiState.Error(
+                messageResId = R.string.news_load_error
+            )
+        }
+    }
+
+    private fun findPost(postId: String): Post? {
+        return (
+            newsRepository.getPosts() +
+                newsRepository.getBinPosts()
+            ).firstOrNull { post ->
+                post.id == postId
+            }
+    }
+
+    private fun isCurrentUserOwner(post: Post): Boolean {
+        val currentUserId = currentProfile?.userId
+
+        return !currentUserId.isNullOrBlank() &&
+            post.userId == currentUserId
+    }
+
+    private fun saveReaction(
+        reaction: Reaction
+    ) {
+        val currentUserId = currentProfile?.userId
+
+        if (currentUserId.isNullOrBlank()) {
+            return
+        }
+
+        if (reaction.userId != currentUserId) {
+            return
+        }
+
+        val post = findPost(reaction.postId) ?: return
+
+        val permissions = resolvePostPermissions(post)
+
+        if (!permissions.canLike) {
+            return
+        }
+
+        runCatching {
+            reactionRepository.saveReaction(reaction)
+        }.onSuccess {
+            loadPosts()
+        }
+    }
+
+    private fun saveComment(
+        comment: Comment
+    ) {
+        val currentUserId = currentProfile?.userId
+
+        if (currentUserId.isNullOrBlank()) {
+            return
+        }
+
+        if (comment.userId != currentUserId) {
+            return
+        }
+
+        if (comment.text.trim().isEmpty()) {
+            return
+        }
+
+        val post = findPost(comment.postId) ?: return
+
+        val permissions = resolvePostPermissions(post)
+
+        if (!permissions.canComment) {
+            return
+        }
+
+        runCatching {
+            commentRepository.saveComment(comment)
+        }.onSuccess {
+            loadPosts()
+        }
+    }
+
+    private fun loadPosts() {
+        _uiState.value = NewsUiState.Loading
+
+        runCatching {
+            newsRepository.getPosts()
+        }.onSuccess { posts ->
+
+            val activePosts = posts.filter { post ->
+                post.lifecycleState == PostLifecycleState.ACTIVE
+            }
+
+            /*
+             * IMPORTANT:
+             *
+             * Public / Followers / FoF / Friends
+             * ----------------------------------
+             * The POST ITSELF is visible to every
+             * FriendZone account holder.
+             *
+             * Audience controls interaction scope,
+             * especially Comment.
+             *
+             * Private
+             * -------
+             * Only the owner can see the post.
+             */
+            val postUiModels = activePosts.mapNotNull { post ->
+
+                val permissions = resolvePostPermissions(post)
+
+                if (!permissions.canView) {
+                    null
+                } else {
+                    NewsPostUiModel(
+                        post = post,
+                        profile = profileRepository.getProfile(
+                            post.userId
+                        ),
+                        reactionCount = reactionRepository
+                            .getReactions(post.id)
+                            .size,
+                        comments = commentRepository
+                            .getComments(post.id),
+                        canView = permissions.canView,
+                        canLike = permissions.canLike,
+                        canComment = permissions.canComment,
+                        canShare = permissions.canShare,
+                        canSave = permissions.canSave,
+                        canManage = permissions.canManage
+                    )
                 }
-
-                _uiState.value = NewsUiState.Success(visiblePosts)
-            } catch (_: Exception) {
-                _uiState.value = NewsUiState.Error(
-                    messageResId = R.string.app_name
-                )
             }
-        }
-    }
 
-    fun saveReaction(postId: String) {
-        val currentState = _uiState.value
-
-        if (currentState !is NewsUiState.Success) {
-            return
-        }
-
-        val postUiModel = currentState.posts.firstOrNull {
-            it.post.id == postId
-        } ?: return
-
-        if (!postUiModel.canLike) {
-            return
-        }
-
-        /*
-         * Reaction persistence will be connected to the dedicated
-         * reaction repository/feature without changing the permission
-         * foundation established here.
-         */
-    }
-
-    fun saveComment(
-        postId: String,
-        text: String
-    ) {
-        val trimmedText = text.trim()
-
-        if (trimmedText.isEmpty()) {
-            return
-        }
-
-        val currentState = _uiState.value
-
-        if (currentState !is NewsUiState.Success) {
-            return
-        }
-
-        val postUiModel = currentState.posts.firstOrNull {
-            it.post.id == postId
-        } ?: return
-
-        if (!postUiModel.canComment) {
-            return
-        }
-
-        /*
-         * The existing comment repository remains responsible for
-         * persistence. Permission is checked before the write.
-         */
-        viewModelScope.launch {
-            try {
-                commentRepository.saveComment(
-                    Comment(
-                        id = "",
-                        postId = postId,
-                        userId = currentUserId,
-                        text = trimmedText
-                    )
-                )
-
-                loadPosts()
-            } catch (_: Exception) {
-                // Keep the current UI state when comment persistence fails.
-            }
-        }
-    }
-
-    fun deletePost(postId: String) {
-        val currentState = _uiState.value
-
-        if (currentState !is NewsUiState.Success) {
-            return
-        }
-
-        val postUiModel = currentState.posts.firstOrNull {
-            it.post.id == postId
-        } ?: return
-
-        if (!postUiModel.canManage) {
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                val post = postUiModel.post
-
-                postRepository.savePost(
-                    post.copy(
-                        lifecycleState = PostLifecycleState.BIN,
-                        deletedAt = System.currentTimeMillis()
-                    )
-                )
-
-                loadPosts()
-            } catch (_: Exception) {
-                // Keep the current UI state when deletion fails.
-            }
-        }
-    }
-
-    fun updatePostAudience(
-        postId: String,
-        audience: PostAudience
-    ) {
-        val currentState = _uiState.value
-
-        if (currentState !is NewsUiState.Success) {
-            return
-        }
-
-        val postUiModel = currentState.posts.firstOrNull {
-            it.post.id == postId
-        } ?: return
-
-        if (!postUiModel.canManage) {
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                postRepository.savePost(
-                    postUiModel.post.copy(
-                        audience = audience
-                    )
-                )
-
-                loadPosts()
-            } catch (_: Exception) {
-                // Keep the current UI state when the update fails.
-            }
-        }
-    }
-
-    fun updatePostCaption(
-        postId: String,
-        caption: String
-    ) {
-        val currentState = _uiState.value
-
-        if (currentState !is NewsUiState.Success) {
-            return
-        }
-
-        val postUiModel = currentState.posts.firstOrNull {
-            it.post.id == postId
-        } ?: return
-
-        if (!postUiModel.canManage) {
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                postRepository.savePost(
-                    postUiModel.post.copy(
-                        caption = caption
-                    )
-                )
-
-                loadPosts()
-            } catch (_: Exception) {
-                // Keep the current UI state when the update fails.
-            }
+            _uiState.value = NewsUiState.Success(
+                posts = postUiModels
+            )
+        }.onFailure {
+            _uiState.value = NewsUiState.Error(
+                messageResId = R.string.news_load_error
+            )
         }
     }
 
     private fun resolvePostPermissions(
         post: Post
     ): PostPermissions {
-        val userId = currentUserId.trim()
 
-        if (userId.isEmpty()) {
+        val currentUserId = currentProfile?.userId
+
+        if (currentUserId.isNullOrBlank()) {
             return PostPermissions(
                 canView = false,
                 canLike = false,
@@ -269,14 +350,21 @@ class NewsViewModel(
             )
         }
 
-        val isOwner = post.userId == userId
+        val isOwner = post.userId == currentUserId
 
         /*
-         * Private:
-         * - Owner can see the post.
-         * - Non-owner cannot see the post.
-         * - Owner still has Save and management.
-         * - Like / Comment / Share are intentionally suppressed.
+         * PRIVATE
+         *
+         * Owner:
+         * - View       YES
+         * - Save       YES
+         * - Manage     YES
+         * - Like       NO
+         * - Comment    NO
+         * - Share      NO
+         *
+         * Non-owner:
+         * - Cannot see the post.
          */
         if (post.audience == PostAudience.PRIVATE) {
             return if (isOwner) {
@@ -301,53 +389,72 @@ class NewsViewModel(
         }
 
         val isFriend = isFriend(
-            currentUserId = userId,
+            currentUserId = currentUserId,
             otherUserId = post.userId
         )
 
         val isFriendOfFriend = isFriendOfFriend(
-            currentUserId = userId,
+            currentUserId = currentUserId,
             postOwnerId = post.userId
         )
 
         val isFollowing = isFollowing(
-            followerId = userId,
+            followerId = currentUserId,
             followingId = post.userId
         )
 
         /*
-         * Post visibility rule:
+         * COMMENT audience is cumulative:
          *
-         * Public / Followers / Friends of Friends / Friends
-         * -----------------------------------------------
-         * The post itself remains visible to every FriendZone
-         * account holder.
+         * PUBLIC
+         * -> All app users
          *
-         * Audience controls the COMMENT interaction scope,
-         * not post-level visibility.
+         * FOLLOWERS
+         * -> Followers OR FoF OR Friends
+         *
+         * FoF
+         * -> FoF OR Friends
+         *
+         * FRIENDS
+         * -> Friends
          */
         val canComment = when (post.audience) {
-            PostAudience.PUBLIC -> true
 
-            PostAudience.FOLLOWERS ->
-                isFollowing || isFriendOfFriend || isFriend
+            PostAudience.PUBLIC -> {
+                true
+            }
 
-            PostAudience.FRIENDS_OF_FRIENDS ->
-                isFriendOfFriend || isFriend
+            PostAudience.FOLLOWERS -> {
+                isFollowing ||
+                    isFriendOfFriend ||
+                    isFriend
+            }
 
-            PostAudience.FRIENDS ->
+            PostAudience.FRIENDS_OF_FRIENDS -> {
+                isFriendOfFriend ||
+                    isFriend
+            }
+
+            PostAudience.FRIENDS -> {
                 isFriend
+            }
 
-            PostAudience.PRIVATE ->
+            PostAudience.PRIVATE -> {
                 false
+            }
         }
 
         /*
-         * Like and Share are available to all viewers of
-         * non-private posts.
+         * For every non-private post:
          *
-         * Save is a basic right of a visible viewer.
-         * It is not a Private-only permission.
+         * View  -> YES
+         * Like  -> YES
+         * Share -> YES
+         * Save  -> YES
+         *
+         * Save is NOT a Private-only permission.
+         * It is available to any viewer who can see
+         * the post.
          */
         return PostPermissions(
             canView = true,
@@ -363,73 +470,119 @@ class NewsViewModel(
         currentUserId: String,
         otherUserId: String
     ): Boolean {
-        val repository = friendRepository ?: return false
+        val repository = friendRepository
+            ?: return false
 
-        return try {
-            repository.getFriends(currentUserId).any {
-                it.userId == currentUserId &&
-                    it.friendUserId == otherUserId
-            } || repository.getFriends(otherUserId).any {
-                it.userId == otherUserId &&
-                    it.friendUserId == currentUserId
+        return runCatching {
+
+            repository.getFriends(currentUserId).any { friend ->
+                (
+                    friend.userId == currentUserId &&
+                        friend.friendUserId == otherUserId
+                    ) ||
+                    (
+                        friend.friendUserId == currentUserId &&
+                            friend.userId == otherUserId
+                        )
+            } || repository.getFriends(otherUserId).any { friend ->
+                (
+                    friend.userId == otherUserId &&
+                        friend.friendUserId == currentUserId
+                    ) ||
+                    (
+                        friend.friendUserId == otherUserId &&
+                            friend.userId == currentUserId
+                        )
             }
-        } catch (_: Exception) {
-            false
-        }
+
+        }.getOrDefault(false)
     }
 
     private fun isFollowing(
         followerId: String,
         followingId: String
     ): Boolean {
-        val repository = followRepository ?: return false
+        val repository = followRepository
+            ?: return false
 
-        return try {
-            repository.getFollowing(followerId).any {
-                it.followerId == followerId &&
-                    it.followingId == followingId
+        return runCatching {
+            repository.getFollowing(followerId).any { follow ->
+                follow.followerId == followerId &&
+                    follow.followingId == followingId
             }
-        } catch (_: Exception) {
-            false
-        }
+        }.getOrDefault(false)
     }
 
     private fun isFriendOfFriend(
         currentUserId: String,
         postOwnerId: String
     ): Boolean {
-        val repository = friendRepository ?: return false
+        val repository = friendRepository
+            ?: return false
 
-        return try {
+        if (currentUserId == postOwnerId) {
+            return false
+        }
+
+        return runCatching {
+
             val currentUserFriends = repository
                 .getFriends(currentUserId)
-                .map { it.friendUserId }
-                .filter { it != postOwnerId }
+                .mapNotNull { friend ->
+                    when {
+                        friend.userId == currentUserId -> {
+                            friend.friendUserId
+                        }
+
+                        friend.friendUserId == currentUserId -> {
+                            friend.userId
+                        }
+
+                        else -> null
+                    }
+                }
+                .filter { friendId ->
+                    friendId != postOwnerId
+                }
                 .toSet()
 
             if (currentUserFriends.isEmpty()) {
-                return false
-            }
+                false
+            } else {
 
-            val ownerFriends = repository
-                .getFriends(postOwnerId)
-                .map { it.friendUserId }
-                .toSet()
+                val ownerFriends = repository
+                    .getFriends(postOwnerId)
+                    .mapNotNull { friend ->
+                        when {
+                            friend.userId == postOwnerId -> {
+                                friend.friendUserId
+                            }
 
-            /*
-             * Exactly one degree:
-             * current user -> friend -> post owner.
-             *
-             * Direct friendship also qualifies as FoF for the
-             * cumulative comment rule, so direct friendship is
-             * checked separately by isFriend().
-             */
-            currentUserFriends.any { friendId ->
-                ownerFriends.contains(friendId)
+                            friend.friendUserId == postOwnerId -> {
+                                friend.userId
+                            }
+
+                            else -> null
+                        }
+                    }
+                    .toSet()
+
+                /*
+                 * Exactly one degree:
+                 *
+                 * Current User
+                 *      ↓
+                 *   Friend
+                 *      ↓
+                 * Post Owner
+                 *
+                 * No recursive / multi-degree traversal.
+                 */
+                currentUserFriends.any { friendId ->
+                    friendId in ownerFriends
+                }
             }
-        } catch (_: Exception) {
-            false
-        }
+        }.getOrDefault(false)
     }
 
     private data class PostPermissions(
