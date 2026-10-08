@@ -3,6 +3,7 @@ package com.fz.friendzone.feature.news
 import androidx.annotation.StringRes
 import com.fz.friendzone.core.model.Comment
 import com.fz.friendzone.core.model.Post
+import com.fz.friendzone.core.model.PostVisibility
 import com.fz.friendzone.core.model.Profile
 
 sealed interface NewsUiState {
@@ -22,5 +23,6 @@ data class NewsPostUiModel(
     val post: Post,
     val profile: Profile?,
     val reactionCount: Int = 0,
-    val comments: List<Comment> = emptyList()
+    val comments: List<Comment> = emptyList(),
+    val visibility: PostVisibility = PostVisibility.FULL
 )
