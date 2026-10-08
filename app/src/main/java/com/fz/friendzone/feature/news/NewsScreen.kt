@@ -54,7 +54,6 @@ import com.fz.friendzone.core.model.MediaAsset
 import com.fz.friendzone.core.model.MediaType
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.PostMediaType
-import com.fz.friendzone.core.model.PostVisibility
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.CommentRepository
@@ -287,7 +286,12 @@ private fun NewsPostList(
                 currentUserId = currentUserId,
                 reactionCount = postUiModel.reactionCount,
                 comments = postUiModel.comments,
-                visibility = postUiModel.visibility,
+                canView = postUiModel.canView,
+                canLike = postUiModel.canLike,
+                canComment = postUiModel.canComment,
+                canShare = postUiModel.canShare,
+                canSave = postUiModel.canSave,
+                canManage = postUiModel.canManage,
                 mediaLibrary = mediaLibrary,
                 onLikePost = onLikePost,
                 onSaveComment = onSaveComment,
@@ -306,7 +310,12 @@ private fun NewsPostCard(
     currentUserId: String?,
     reactionCount: Int,
     comments: List<Comment>,
-    visibility: PostVisibility,
+    canView: Boolean,
+    canLike: Boolean,
+    canComment: Boolean,
+    canShare: Boolean,
+    canSave: Boolean,
+    canManage: Boolean,
     mediaLibrary: MediaLibrary,
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit,
@@ -337,7 +346,9 @@ private fun NewsPostCard(
     val isOwner = !currentUserId.isNullOrBlank() &&
         currentUserId == post.userId
 
-    val canInteract = visibility == PostVisibility.FULL
+    if (!canView) {
+        return
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -361,22 +372,32 @@ private fun NewsPostCard(
                     )
                 }
 
-                Box {
+                if (canSave) {
                     TextButton(
                         onClick = {
-                            isMenuExpanded = true
+                            // Save workflow will be implemented in the dedicated Save phase.
                         }
                     ) {
-                        Text(text = "⋮")
+                        Text(text = "Save")
                     }
+                }
 
-                    DropdownMenu(
-                        expanded = isMenuExpanded,
-                        onDismissRequest = {
-                            isMenuExpanded = false
+                if (canManage) {
+                    Box {
+                        TextButton(
+                            onClick = {
+                                isMenuExpanded = true
+                            }
+                        ) {
+                            Text(text = "⋮")
                         }
-                    ) {
-                        if (isOwner) {
+
+                        DropdownMenu(
+                            expanded = isMenuExpanded,
+                            onDismissRequest = {
+                                isMenuExpanded = false
+                            }
+                        ) {
                             DropdownMenuItem(
                                 text = {
                                     Text(text = "Audience")
@@ -396,18 +417,7 @@ private fun NewsPostCard(
                                     isEditing = true
                                 }
                             )
-                        }
 
-                        DropdownMenuItem(
-                            text = {
-                                Text(text = "Save")
-                            },
-                            onClick = {
-                                isMenuExpanded = false
-                            }
-                        )
-
-                        if (isOwner) {
                             DropdownMenuItem(
                                 text = {
                                     Text(text = "Delete")
@@ -478,7 +488,7 @@ private fun NewsPostCard(
                 )
             }
 
-            if (canInteract) {
+            if (canLike) {
                 Button(
                     onClick = {
                         val userId = currentUserId
@@ -501,17 +511,19 @@ private fun NewsPostCard(
                 }
             }
 
-            Text(
-                text = reactionCount.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            if (canLike || canComment || canShare) {
+                Text(
+                    text = reactionCount.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
-            NewsCommentList(
-                comments = comments
-            )
+            if (canComment) {
+                NewsCommentList(
+                    comments = comments
+                )
 
-            if (canInteract) {
                 OutlinedTextField(
                     value = commentText,
                     onValueChange = { commentText = it },
