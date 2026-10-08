@@ -166,9 +166,9 @@ class NewsViewModel(
         return (
             newsRepository.getPosts() +
                 newsRepository.getBinPosts()
-        ).firstOrNull { post ->
-            post.id == postId
-        }
+            ).firstOrNull { post ->
+                post.id == postId
+            }
     }
 
     private fun isCurrentUserOwner(post: Post): Boolean {
@@ -181,6 +181,21 @@ class NewsViewModel(
     private fun saveReaction(
         reaction: Reaction
     ) {
+        val post = findPost(reaction.postId) ?: return
+        val currentUserId = currentProfile?.userId
+
+        if (currentUserId.isNullOrBlank()) {
+            return
+        }
+
+        if (reaction.userId != currentUserId) {
+            return
+        }
+
+        if (resolvePostVisibility(post) != PostVisibility.FULL) {
+            return
+        }
+
         reactionRepository.saveReaction(reaction)
         loadPosts()
     }
@@ -188,6 +203,21 @@ class NewsViewModel(
     private fun saveComment(
         comment: Comment
     ) {
+        val post = findPost(comment.postId) ?: return
+        val currentUserId = currentProfile?.userId
+
+        if (currentUserId.isNullOrBlank()) {
+            return
+        }
+
+        if (comment.userId != currentUserId) {
+            return
+        }
+
+        if (resolvePostVisibility(post) != PostVisibility.FULL) {
+            return
+        }
+
         commentRepository.saveComment(comment)
         loadPosts()
     }
@@ -285,11 +315,17 @@ class NewsViewModel(
         runCatching {
             newsRepository.getPosts()
         }.onSuccess { posts ->
-            val visiblePosts = posts.filter { post ->
-                resolvePostVisibility(post) != PostVisibility.DENIED
+            val visiblePosts = posts.mapNotNull { post ->
+                val visibility = resolvePostVisibility(post)
+
+                if (visibility == PostVisibility.DENIED) {
+                    null
+                } else {
+                    post to visibility
+                }
             }
 
-            val postUiModels = visiblePosts.map { post ->
+            val postUiModels = visiblePosts.map { (post, visibility) ->
                 NewsPostUiModel(
                     post = post,
                     profile = profileRepository.getProfile(post.userId),
@@ -297,7 +333,8 @@ class NewsViewModel(
                         .getReactions(post.id)
                         .size,
                     comments = commentRepository
-                        .getComments(post.id)
+                        .getComments(post.id),
+                    visibility = visibility
                 )
             }
 
