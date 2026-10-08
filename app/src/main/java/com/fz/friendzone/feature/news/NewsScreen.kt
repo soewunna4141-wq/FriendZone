@@ -54,6 +54,7 @@ import com.fz.friendzone.core.model.MediaAsset
 import com.fz.friendzone.core.model.MediaType
 import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.PostMediaType
+import com.fz.friendzone.core.model.PostVisibility
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.CommentRepository
@@ -286,6 +287,7 @@ private fun NewsPostList(
                 currentUserId = currentUserId,
                 reactionCount = postUiModel.reactionCount,
                 comments = postUiModel.comments,
+                visibility = postUiModel.visibility,
                 mediaLibrary = mediaLibrary,
                 onLikePost = onLikePost,
                 onSaveComment = onSaveComment,
@@ -304,6 +306,7 @@ private fun NewsPostCard(
     currentUserId: String?,
     reactionCount: Int,
     comments: List<Comment>,
+    visibility: PostVisibility,
     mediaLibrary: MediaLibrary,
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit,
@@ -333,6 +336,8 @@ private fun NewsPostCard(
 
     val isOwner = !currentUserId.isNullOrBlank() &&
         currentUserId == post.userId
+
+    val canInteract = visibility == PostVisibility.FULL
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -473,25 +478,27 @@ private fun NewsPostCard(
                 )
             }
 
-            Button(
-                onClick = {
-                    val userId = currentUserId
+            if (canInteract) {
+                Button(
+                    onClick = {
+                        val userId = currentUserId
 
-                    if (!userId.isNullOrBlank()) {
-                        onLikePost(
-                            post.id,
-                            userId
-                        )
-                    }
-                },
-                enabled = !currentUserId.isNullOrBlank(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.news_reaction_like)
-                )
+                        if (!userId.isNullOrBlank()) {
+                            onLikePost(
+                                post.id,
+                                userId
+                            )
+                        }
+                    },
+                    enabled = !currentUserId.isNullOrBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.news_reaction_like)
+                    )
+                }
             }
 
             Text(
@@ -504,48 +511,50 @@ private fun NewsPostCard(
                 comments = comments
             )
 
-            OutlinedTextField(
-                value = commentText,
-                onValueChange = { commentText = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                label = {
-                    Text(
-                        text = stringResource(R.string.news_comment_hint)
-                    )
-                },
-                enabled = !currentUserId.isNullOrBlank(),
-                singleLine = false
-            )
-
-            Button(
-                onClick = {
-                    val userId = currentUserId
-                    val trimmedText = commentText.trim()
-
-                    if (!userId.isNullOrBlank() && trimmedText.isNotEmpty()) {
-                        onSaveComment(
-                            Comment(
-                                id = UUID.randomUUID().toString(),
-                                postId = post.id,
-                                userId = userId,
-                                text = trimmedText
-                            )
+            if (canInteract) {
+                OutlinedTextField(
+                    value = commentText,
+                    onValueChange = { commentText = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    label = {
+                        Text(
+                            text = stringResource(R.string.news_comment_hint)
                         )
-
-                        commentText = ""
-                    }
-                },
-                enabled = !currentUserId.isNullOrBlank() &&
-                    commentText.trim().isNotEmpty(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.news_comment_button)
+                    },
+                    enabled = !currentUserId.isNullOrBlank(),
+                    singleLine = false
                 )
+
+                Button(
+                    onClick = {
+                        val userId = currentUserId
+                        val trimmedText = commentText.trim()
+
+                        if (!userId.isNullOrBlank() && trimmedText.isNotEmpty()) {
+                            onSaveComment(
+                                Comment(
+                                    id = UUID.randomUUID().toString(),
+                                    postId = post.id,
+                                    userId = userId,
+                                    text = trimmedText
+                                )
+                            )
+
+                            commentText = ""
+                        }
+                    },
+                    enabled = !currentUserId.isNullOrBlank() &&
+                        commentText.trim().isNotEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.news_comment_button)
+                    )
+                }
             }
         }
     }
