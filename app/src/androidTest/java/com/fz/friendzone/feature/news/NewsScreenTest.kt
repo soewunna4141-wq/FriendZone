@@ -2,6 +2,7 @@ package com.fz.friendzone.feature.news
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -13,6 +14,7 @@ import com.fz.friendzone.core.model.Follow
 import com.fz.friendzone.core.model.Friend
 import com.fz.friendzone.core.model.MediaAsset
 import com.fz.friendzone.core.model.Post
+import com.fz.friendzone.core.model.PostAudience
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
 import com.fz.friendzone.data.repository.CommentRepository
@@ -554,6 +556,98 @@ class NewsScreenTest {
         composeTestRule.onNodeWithText(
             "Nice post"
         ).assertIsDisplayed()
+    }
+
+    @Test
+    fun privatePost_forFriend_showsPostButBlocksInteractions() {
+        val ownerProfile = Profile(
+            userId = "user-2",
+            displayName = "Owner"
+        )
+
+        val viewerProfile = Profile(
+            userId = "user-1",
+            displayName = "Friend Viewer"
+        )
+
+        val post = Post(
+            id = "private-post-1",
+            userId = "user-2",
+            caption = "Private friend post",
+            audience = PostAudience.PRIVATE
+        )
+
+        val profileRepository = object : ProfileRepository {
+            override fun getProfile(): Profile? {
+                return viewerProfile
+            }
+
+            override fun getProfile(userId: String): Profile? {
+                return when (userId) {
+                    "user-1" -> viewerProfile
+                    "user-2" -> ownerProfile
+                    else -> null
+                }
+            }
+
+            override fun saveProfile(profile: Profile) {
+            }
+        }
+
+        val newsRepository = FakeNewsRepository(
+            posts = listOf(post)
+        )
+        val reactionRepository = FakeReactionRepository()
+        val commentRepository = FakeCommentRepository()
+        val mediaLibrary = FakeMediaLibrary()
+        val privacyFriendRepository = FakeFriendRepository()
+
+        privacyFriendRepository.saveFriend(
+            Friend(
+                id = "friend-1",
+                userId = "user-1",
+                friendUserId = "user-2"
+            )
+        )
+
+        composeTestRule.setContent {
+            NewsScreen(
+                repository = newsRepository,
+                profileRepository = profileRepository,
+                reactionRepository = reactionRepository,
+                commentRepository = commentRepository,
+                mediaLibrary = mediaLibrary,
+                friendRepository = privacyFriendRepository,
+                followRepository = followRepository
+            )
+        }
+
+        composeTestRule.onNodeWithText(
+            "Private friend post"
+        ).assertIsDisplayed()
+
+        composeTestRule.runOnIdle {
+            check(
+                composeTestRule
+                    .onAllNodesWithText("Like")
+                    .fetchSemanticsNodes()
+                    .isEmpty()
+            )
+
+            check(
+                composeTestRule
+                    .onAllNodesWithText("Write a comment")
+                    .fetchSemanticsNodes()
+                    .isEmpty()
+            )
+
+            check(
+                composeTestRule
+                    .onAllNodesWithText("Comment")
+                    .fetchSemanticsNodes()
+                    .isEmpty()
+            )
+        }
     }
 
     @Test
