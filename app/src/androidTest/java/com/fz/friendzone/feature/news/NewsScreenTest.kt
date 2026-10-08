@@ -626,28 +626,26 @@ class NewsScreenTest {
             "Private friend post"
         ).assertIsDisplayed()
 
-        composeTestRule.runOnIdle {
-            check(
-                composeTestRule
-                    .onAllNodesWithText("Like")
-                    .fetchSemanticsNodes()
-                    .isEmpty()
-            )
+        check(
+            composeTestRule
+                .onAllNodesWithText("Like")
+                .fetchSemanticsNodes()
+                .isEmpty()
+        )
 
-            check(
-                composeTestRule
-                    .onAllNodesWithText("Write a comment")
-                    .fetchSemanticsNodes()
-                    .isEmpty()
-            )
+        check(
+            composeTestRule
+                .onAllNodesWithText("Write a comment")
+                .fetchSemanticsNodes()
+                .isEmpty()
+        )
 
-            check(
-                composeTestRule
-                    .onAllNodesWithText("Comment")
-                    .fetchSemanticsNodes()
-                    .isEmpty()
-            )
-        }
+        check(
+            composeTestRule
+                .onAllNodesWithText("Comment")
+                .fetchSemanticsNodes()
+                .isEmpty()
+        )
     }
 
     @Test
