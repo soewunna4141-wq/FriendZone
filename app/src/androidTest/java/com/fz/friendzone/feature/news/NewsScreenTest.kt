@@ -559,7 +559,7 @@ class NewsScreenTest {
     }
 
     @Test
-    fun privatePost_forFriend_showsPostButBlocksInteractions() {
+    fun privatePost_forFriend_isHiddenFromNonOwner() {
         val ownerProfile = Profile(
             userId = "user-2",
             displayName = "Owner"
@@ -622,9 +622,12 @@ class NewsScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText(
-            "Private friend post"
-        ).assertIsDisplayed()
+        check(
+            composeTestRule
+                .onAllNodesWithText("Private friend post")
+                .fetchSemanticsNodes()
+                .isEmpty()
+        )
 
         check(
             composeTestRule
@@ -649,7 +652,7 @@ class NewsScreenTest {
     }
 
     @Test
-    fun ownerPostMenu_showsOwnerActions() {
+    fun ownerPostMenu_showsOwnerManagementActions() {
         val profile = Profile(
             userId = "user-1",
             displayName = "Owner"
@@ -683,16 +686,24 @@ class NewsScreenTest {
             )
         }
 
+        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+
         composeTestRule.onNodeWithText("⋮").performClick()
 
         composeTestRule.onNodeWithText("Audience").assertIsDisplayed()
         composeTestRule.onNodeWithText("Edit").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Save").assertIsDisplayed()
         composeTestRule.onNodeWithText("Delete").assertIsDisplayed()
+
+        check(
+            composeTestRule
+                .onAllNodesWithText("Save")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        )
     }
 
     @Test
-    fun viewerPostMenu_showsOnlySave() {
+    fun viewerPost_showsSaveWithoutManagementMenu() {
         val ownerProfile = Profile(
             userId = "user-2",
             displayName = "Owner"
@@ -745,9 +756,14 @@ class NewsScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText("⋮").performClick()
-
         composeTestRule.onNodeWithText("Save").assertIsDisplayed()
+
+        check(
+            composeTestRule
+                .onAllNodesWithText("⋮")
+                .fetchSemanticsNodes()
+                .isEmpty()
+        )
     }
 
     @Test
