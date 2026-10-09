@@ -1,6 +1,8 @@
+
 package com.fz.friendzone.feature.news
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.fz.friendzone.R
 import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.model.Comment
@@ -15,6 +17,10 @@ import com.fz.friendzone.data.repository.FriendRepository
 import com.fz.friendzone.data.repository.NewsRepository
 import com.fz.friendzone.data.repository.ProfileRepository
 import com.fz.friendzone.data.repository.ReactionRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,8 +32,21 @@ class NewsViewModel(
     private val commentRepository: CommentRepository,
     private val mediaLibrary: MediaLibrary,
     private val friendRepository: FriendRepository? = null,
-    private val followRepository: FollowRepository? = null
+    private val followRepository: FollowRepository? = null,
+    private val actionScope: CoroutineScope? = null,
+    private val actionDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
+
+    /*
+     * Production:
+     * - Use viewModelScope for lifecycle-aware actions.
+     * - Use Dispatchers.IO for repository/database operations.
+     *
+     * Tests may inject a scope and dispatcher to preserve
+     * deterministic execution.
+     */
+    private val scope: CoroutineScope
+        get() = actionScope ?: viewModelScope
 
     private val _uiState = MutableStateFlow<NewsUiState>(
         NewsUiState.Loading
@@ -39,35 +58,39 @@ class NewsViewModel(
         get() = profileRepository.getProfile()
 
     fun onAction(action: NewsAction) {
-        when (action) {
-            NewsAction.Load -> loadPosts()
+        scope.launch(actionDispatcher) {
+            when (action) {
+                NewsAction.Load -> {
+                    loadPosts()
+                }
 
-            is NewsAction.CreatePost -> {
-                createPost(action.post)
-            }
+                is NewsAction.CreatePost -> {
+                    createPost(action.post)
+                }
 
-            is NewsAction.UpdatePost -> {
-                updatePost(action.post)
-            }
+                is NewsAction.UpdatePost -> {
+                    updatePost(action.post)
+                }
 
-            is NewsAction.MovePostToBin -> {
-                movePostToBin(action.postId)
-            }
+                is NewsAction.MovePostToBin -> {
+                    movePostToBin(action.postId)
+                }
 
-            is NewsAction.RestorePost -> {
-                restorePost(action.postId)
-            }
+                is NewsAction.RestorePost -> {
+                    restorePost(action.postId)
+                }
 
-            is NewsAction.MovePostToAsh -> {
-                movePostToAsh(action.postId)
-            }
+                is NewsAction.MovePostToAsh -> {
+                    movePostToAsh(action.postId)
+                }
 
-            is NewsAction.SaveReaction -> {
-                saveReaction(action.reaction)
-            }
+                is NewsAction.SaveReaction -> {
+                    saveReaction(action.reaction)
+                }
 
-            is NewsAction.SaveComment -> {
-                saveComment(action.comment)
+                is NewsAction.SaveComment -> {
+                    saveComment(action.comment)
+                }
             }
         }
     }
@@ -490,7 +513,7 @@ class NewsViewModel(
                         friend.friendUserId == currentUserId
                     ) ||
                     (
-                        friend.friendUserId == otherUserId &&
+                        friend.friendUserId == currentUserId &&
                             friend.userId == currentUserId
                         )
             }
