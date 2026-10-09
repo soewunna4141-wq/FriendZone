@@ -126,7 +126,8 @@ fun FriendZoneNavHost(
                     commentRepository = application.dependencies.commentRepository,
                     mediaLibrary = application.dependencies.mediaLibrary,
                     friendRepository = application.dependencies.friendRepository,
-                    followRepository = application.dependencies.followRepository
+                    followRepository = application.dependencies.followRepository,
+                    savedPostRepository = application.dependencies.savedPostRepository
                 )
             }
         }
