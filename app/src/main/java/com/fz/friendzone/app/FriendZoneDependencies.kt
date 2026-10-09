@@ -2,11 +2,15 @@ package com.fz.friendzone.app
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.fz.friendzone.core.media.FriendZoneDatabase
 import com.fz.friendzone.core.media.MediaLibrary
 import com.fz.friendzone.core.media.PersistentMediaMetadataStore
 import com.fz.friendzone.core.media.RoomMediaLibrary
 import com.fz.friendzone.core.media.RoomPersistentMediaMetadataStore
+import com.fz.friendzone.core.saved.RoomSavedPostRepository
+import com.fz.friendzone.core.saved.SavedPostRepository
 import com.fz.friendzone.data.local.InMemoryReelsLocalDataSource
 import com.fz.friendzone.data.repository.AccountRepository
 import com.fz.friendzone.data.repository.AccountRepositoryFactory
@@ -43,7 +47,9 @@ class FriendZoneDependencies(
             context,
             FriendZoneDatabase::class.java,
             "friendzone.db"
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     val persistentMediaMetadataStore: PersistentMediaMetadataStore by lazy {
@@ -55,6 +61,12 @@ class FriendZoneDependencies(
     val mediaLibrary: MediaLibrary by lazy {
         RoomMediaLibrary(
             persistentMediaMetadataStore
+        )
+    }
+
+    val savedPostRepository: SavedPostRepository by lazy {
+        RoomSavedPostRepository(
+            database.savedPostDao()
         )
     }
 
@@ -118,5 +130,26 @@ class FriendZoneDependencies(
 
     val followViewModelFactory: FollowViewModelFactory by lazy {
         FollowViewModelFactory(followRepository)
+    }
+
+    private companion object {
+
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+
+            override fun migrate(
+                database: SupportSQLiteDatabase
+            ) {
+                database.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `saved_posts` (
+                        `userId` TEXT NOT NULL,
+                        `postId` TEXT NOT NULL,
+                        `savedAt` INTEGER NOT NULL,
+                        PRIMARY KEY(`userId`, `postId`)
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
     }
 }
