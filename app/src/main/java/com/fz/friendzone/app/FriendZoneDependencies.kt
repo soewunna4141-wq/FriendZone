@@ -39,117 +39,121 @@ import com.fz.friendzone.feature.login.LoginViewModelFactory
 import com.fz.friendzone.feature.profile.ProfileViewModelFactory
 
 class FriendZoneDependencies(
-    private val context: Context
+private val context: Context
 ) {
 
-    val database: FriendZoneDatabase by lazy {
-        Room.databaseBuilder(
-            context,
-            FriendZoneDatabase::class.java,
-            "friendzone.db"
+val database: FriendZoneDatabase by lazy {
+    Room.databaseBuilder(
+        context,
+        FriendZoneDatabase::class.java,
+        "friendzone.db"
+    )
+        .addMigrations(
+            MIGRATION_1_2,
+            FriendZoneDatabase.MIGRATION_2_3
         )
-            .addMigrations(MIGRATION_1_2)
-            .build()
-    }
+        .build()
+}
 
-    val persistentMediaMetadataStore: PersistentMediaMetadataStore by lazy {
-        RoomPersistentMediaMetadataStore(
-            database.mediaAssetDao()
-        )
-    }
+val persistentMediaMetadataStore: PersistentMediaMetadataStore by lazy {
+    RoomPersistentMediaMetadataStore(
+        database.mediaAssetDao()
+    )
+}
 
-    val mediaLibrary: MediaLibrary by lazy {
-        RoomMediaLibrary(
-            persistentMediaMetadataStore
-        )
-    }
+val mediaLibrary: MediaLibrary by lazy {
+    RoomMediaLibrary(
+        persistentMediaMetadataStore
+    )
+}
 
-    val savedPostRepository: SavedPostRepository by lazy {
-        RoomSavedPostRepository(
-            database.savedPostDao()
-        )
-    }
+val savedPostRepository: SavedPostRepository by lazy {
+    RoomSavedPostRepository(
+        database.savedPostDao()
+    )
+}
 
-    val accountRepository: AccountRepository by lazy {
-        AccountRepositoryFactory.create()
-    }
+val accountRepository: AccountRepository by lazy {
+    AccountRepositoryFactory.create()
+}
 
-    val accountViewModelFactory: AccountViewModelFactory by lazy {
-        AccountViewModelFactory(accountRepository)
-    }
+val accountViewModelFactory: AccountViewModelFactory by lazy {
+    AccountViewModelFactory(accountRepository)
+}
 
-    val authenticationRepository: AuthenticationRepository by lazy {
-        AuthenticationRepositoryFactory.create()
-    }
+val authenticationRepository: AuthenticationRepository by lazy {
+    AuthenticationRepositoryFactory.create()
+}
 
-    val loginViewModelFactory: LoginViewModelFactory by lazy {
-        LoginViewModelFactory(authenticationRepository)
-    }
+val loginViewModelFactory: LoginViewModelFactory by lazy {
+    LoginViewModelFactory(authenticationRepository)
+}
 
-    val profileRepository: ProfileRepository by lazy {
-        ProfileRepositoryFactory.create()
-    }
+val profileRepository: ProfileRepository by lazy {
+    ProfileRepositoryFactory.create()
+}
 
-    val profileViewModelFactory: ProfileViewModelFactory by lazy {
-        ProfileViewModelFactory(profileRepository)
-    }
+val profileViewModelFactory: ProfileViewModelFactory by lazy {
+    ProfileViewModelFactory(profileRepository)
+}
 
-    val newsRepository: NewsRepository by lazy {
-        NewsRepositoryFactory.create()
-    }
+val newsRepository: NewsRepository by lazy {
+    NewsRepositoryFactory.create()
+}
 
-    val reactionRepository: ReactionRepository by lazy {
-        ReactionRepositoryFactory.create()
-    }
+val reactionRepository: ReactionRepository by lazy {
+    ReactionRepositoryFactory.create()
+}
 
-    val commentRepository: CommentRepository by lazy {
-        CommentRepositoryFactory.create()
-    }
+val commentRepository: CommentRepository by lazy {
+    CommentRepositoryFactory.create()
+}
 
-    val reelsRepository: ReelsRepository by lazy {
-        ReelsRepositoryImpl(
-            InMemoryReelsLocalDataSource()
-        )
-    }
+val reelsRepository: ReelsRepository by lazy {
+    ReelsRepositoryImpl(
+        InMemoryReelsLocalDataSource()
+    )
+}
 
-    val userRepository: UserRepository by lazy {
-        UserRepositoryFactory.create()
-    }
+val userRepository: UserRepository by lazy {
+    UserRepositoryFactory.create()
+}
 
-    val friendRepository: FriendRepository by lazy {
-        FriendRepositoryFactory.create()
-    }
+val friendRepository: FriendRepository by lazy {
+    FriendRepositoryFactory.create()
+}
 
-    val friendViewModelFactory: FriendViewModelFactory by lazy {
-        FriendViewModelFactory(friendRepository)
-    }
+val friendViewModelFactory: FriendViewModelFactory by lazy {
+    FriendViewModelFactory(friendRepository)
+}
 
-    val followRepository: FollowRepository by lazy {
-        FollowRepositoryFactory.create()
-    }
+val followRepository: FollowRepository by lazy {
+    FollowRepositoryFactory.create()
+}
 
-    val followViewModelFactory: FollowViewModelFactory by lazy {
-        FollowViewModelFactory(followRepository)
-    }
+val followViewModelFactory: FollowViewModelFactory by lazy {
+    FollowViewModelFactory(followRepository)
+}
 
-    private companion object {
+private companion object {
 
-        val MIGRATION_1_2 = object : Migration(1, 2) {
+    val MIGRATION_1_2 = object : Migration(1, 2) {
 
-            override fun migrate(
-                database: SupportSQLiteDatabase
-            ) {
-                database.execSQL(
-                    """
-                    CREATE TABLE IF NOT EXISTS `saved_posts` (
-                        `userId` TEXT NOT NULL,
-                        `postId` TEXT NOT NULL,
-                        `savedAt` INTEGER NOT NULL,
-                        PRIMARY KEY(`userId`, `postId`)
-                    )
-                    """.trimIndent()
+        override fun migrate(
+            database: SupportSQLiteDatabase
+        ) {
+            database.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `saved_posts` (
+                    `userId` TEXT NOT NULL,
+                    `postId` TEXT NOT NULL,
+                    `savedAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`userId`, `postId`)
                 )
-            }
+                """.trimIndent()
+            )
         }
     }
+}
+
 }
