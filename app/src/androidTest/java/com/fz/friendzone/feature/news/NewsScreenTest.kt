@@ -1,3 +1,4 @@
+
 package com.fz.friendzone.feature.news
 
 import androidx.compose.ui.test.assertIsDisplayed
@@ -56,7 +57,16 @@ class NewsScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText("No posts yet").assertIsDisplayed()
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            composeTestRule
+                .onAllNodesWithText("No posts yet")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+
+        composeTestRule
+            .onNodeWithText("No posts yet")
+            .assertIsDisplayed()
     }
 
     @Test
@@ -452,13 +462,27 @@ class NewsScreenTest {
             )
         }
 
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            composeTestRule
+                .onAllNodesWithText("Write a comment")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+
         composeTestRule
-            .onAllNodes(hasSetTextAction())[1]
+            .onNodeWithText("Write a comment")
             .performTextInput("Nice post")
 
         composeTestRule.onNodeWithText(
             "Comment"
         ).performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            composeTestRule
+                .onAllNodesWithText("Nice post")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
 
         composeTestRule.onNodeWithText(
             "Nice post"
