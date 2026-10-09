@@ -33,6 +33,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +57,7 @@ import com.fz.friendzone.core.model.Post
 import com.fz.friendzone.core.model.PostMediaType
 import com.fz.friendzone.core.model.Profile
 import com.fz.friendzone.core.model.Reaction
+import com.fz.friendzone.core.saved.SavedPostRepository
 import com.fz.friendzone.data.repository.CommentRepository
 import com.fz.friendzone.data.repository.FollowRepository
 import com.fz.friendzone.data.repository.FriendRepository
@@ -65,6 +67,9 @@ import com.fz.friendzone.data.repository.ReactionRepository
 import java.text.DateFormat
 import java.util.Date
 import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun NewsScreen(
@@ -74,7 +79,8 @@ fun NewsScreen(
     commentRepository: CommentRepository,
     mediaLibrary: MediaLibrary,
     friendRepository: FriendRepository,
-    followRepository: FollowRepository
+    followRepository: FollowRepository,
+    savedPostRepository: SavedPostRepository? = null
 ) {
     val viewModel: NewsViewModel = viewModel(
         factory = NewsViewModelFactory(
@@ -95,6 +101,61 @@ fun NewsScreen(
     }
 
     val currentProfile = viewModel.currentProfile
+    val coroutineScope = rememberCoroutineScope()
+
+    var savedPostIds by remember(currentProfile?.userId) {
+        mutableStateOf<Set<String>>(emptySet())
+    }
+
+    var saveFeedbackMessage by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    LaunchedEffect(currentProfile?.userId, savedPostRepository) {
+        val userId = currentProfile?.userId
+        val savedRepository = savedPostRepository
+
+        savedPostIds = if (
+            !userId.isNullOrBlank() &&
+            savedRepository != null
+        ) {
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    savedRepository.getSavedPosts(userId)
+                        .map { it.postId }
+                        .toSet()
+                }
+            }.getOrDefault(emptySet())
+        } else {
+            emptySet()
+        }
+    }
+
+    val savePost: (String) -> Unit = { postId ->
+        val userId = currentProfile?.userId
+        val savedRepository = savedPostRepository
+
+        if (!userId.isNullOrBlank() && savedRepository != null) {
+            coroutineScope.launch {
+                val saved = runCatching {
+                    withContext(Dispatchers.IO) {
+                        savedRepository.save(userId, postId) ||
+                            savedRepository.isSaved(userId, postId)
+                    }
+                }.getOrDefault(false)
+
+                if (saved) {
+                    savedPostIds = savedPostIds + postId
+                    saveFeedbackMessage = "Saved to your saved posts."
+                } else {
+                    saveFeedbackMessage =
+                        "Couldn't save this post. Please try again."
+                }
+            }
+        } else {
+            saveFeedbackMessage = "Saving is unavailable right now."
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.onAction(NewsAction.Load)
@@ -126,7 +187,10 @@ fun NewsScreen(
                         val trimmedCaption = caption.trim()
                         val userId = currentProfile?.userId
 
-                        if (trimmedCaption.isNotEmpty() && !userId.isNullOrBlank()) {
+                        if (
+                            trimmedCaption.isNotEmpty() &&
+                            !userId.isNullOrBlank()
+                        ) {
                             viewModel.onAction(
                                 NewsAction.CreatePost(
                                     Post(
@@ -147,6 +211,8 @@ fun NewsScreen(
                     posts = state.posts,
                     currentUserId = currentProfile?.userId,
                     mediaLibrary = mediaLibrary,
+                    savedPostIds = savedPostIds,
+                    onSavePost = savePost,
                     onLikePost = { postId, userId ->
                         viewModel.onAction(
                             NewsAction.SaveReaction(
@@ -198,6 +264,38 @@ fun NewsScreen(
             }
         }
     }
+
+    if (saveFeedbackMessage != null) {
+        val savedSuccessfully =
+            saveFeedbackMessage == "Saved to your saved posts."
+
+        AlertDialog(
+            onDismissRequest = {
+                saveFeedbackMessage = null
+            },
+            title = {
+                Text(
+                    text = if (savedSuccessfully) {
+                        "Saved"
+                    } else {
+                        "Save failed"
+                    }
+                )
+            },
+            text = {
+                Text(text = saveFeedbackMessage.orEmpty())
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        saveFeedbackMessage = null
+                    }
+                ) {
+                    Text(text = "Done")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -223,7 +321,9 @@ private fun NewsCreatePost(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text(
-                        text = stringResource(R.string.news_create_post_caption)
+                        text = stringResource(
+                            R.string.news_create_post_caption
+                        )
                     )
                 },
                 singleLine = false,
@@ -236,7 +336,9 @@ private fun NewsCreatePost(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = stringResource(R.string.news_create_post_button)
+                    text = stringResource(
+                        R.string.news_create_post_button
+                    )
                 )
             }
         }
@@ -248,6 +350,8 @@ private fun NewsPostList(
     posts: List<NewsPostUiModel>,
     currentUserId: String?,
     mediaLibrary: MediaLibrary,
+    savedPostIds: Set<String>,
+    onSavePost: (postId: String) -> Unit,
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit,
     onUpdatePost: (Post) -> Unit,
@@ -293,6 +397,8 @@ private fun NewsPostList(
                 canSave = postUiModel.canSave,
                 canManage = postUiModel.canManage,
                 mediaLibrary = mediaLibrary,
+                isSaved = postUiModel.post.id in savedPostIds,
+                onSavePost = onSavePost,
                 onLikePost = onLikePost,
                 onSaveComment = onSaveComment,
                 onUpdatePost = onUpdatePost,
@@ -317,6 +423,8 @@ private fun NewsPostCard(
     canSave: Boolean,
     canManage: Boolean,
     mediaLibrary: MediaLibrary,
+    isSaved: Boolean,
+    onSavePost: (postId: String) -> Unit,
     onLikePost: (postId: String, userId: String) -> Unit,
     onSaveComment: (Comment) -> Unit,
     onUpdatePost: (Post) -> Unit,
@@ -375,10 +483,13 @@ private fun NewsPostCard(
                 if (canSave) {
                     TextButton(
                         onClick = {
-                            // Save workflow will be implemented in the dedicated Save phase.
-                        }
+                            onSavePost(post.id)
+                        },
+                        enabled = !isSaved
                     ) {
-                        Text(text = "Save")
+                        Text(
+                            text = if (isSaved) "Saved" else "Save"
+                        )
                     }
                 }
 
@@ -435,7 +546,9 @@ private fun NewsPostCard(
             if (isEditing && isOwner) {
                 OutlinedTextField(
                     value = editedCaption,
-                    onValueChange = { editedCaption = it },
+                    onValueChange = {
+                        editedCaption = it
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
@@ -506,7 +619,9 @@ private fun NewsPostCard(
                         .padding(top = 12.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.news_reaction_like)
+                        text = stringResource(
+                            R.string.news_reaction_like
+                        )
                     )
                 }
             }
@@ -526,13 +641,17 @@ private fun NewsPostCard(
 
                 OutlinedTextField(
                     value = commentText,
-                    onValueChange = { commentText = it },
+                    onValueChange = {
+                        commentText = it
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 12.dp),
                     label = {
                         Text(
-                            text = stringResource(R.string.news_comment_hint)
+                            text = stringResource(
+                                R.string.news_comment_hint
+                            )
                         )
                     },
                     enabled = !currentUserId.isNullOrBlank(),
@@ -544,7 +663,10 @@ private fun NewsPostCard(
                         val userId = currentUserId
                         val trimmedText = commentText.trim()
 
-                        if (!userId.isNullOrBlank() && trimmedText.isNotEmpty()) {
+                        if (
+                            !userId.isNullOrBlank() &&
+                            trimmedText.isNotEmpty()
+                        ) {
                             onSaveComment(
                                 Comment(
                                     id = UUID.randomUUID().toString(),
@@ -564,7 +686,9 @@ private fun NewsPostCard(
                         .padding(top = 8.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.news_comment_button)
+                        text = stringResource(
+                            R.string.news_comment_button
+                        )
                     )
                 }
             }
